@@ -92,3 +92,13 @@ glutInitWindowSize(1000, 1000);
 glutInitWindowPosition(100, 100);
 glutCreateWindow("eeewdewewd");
 ```
+## Создание многоугольника с помощью математических формул
+```c++
+double r = 0.5;
+double t = 1.0;
+const double PI = 3.141592653589793;
+vec3 Vertices[8];
+for (int i = 0; i < 8; i++) {
+    Vertices[i] = vec3(r * cos(t + i * PI * 0.25), r * sin(t + i * PI * 0.25), 0.0f);
+}
+```
