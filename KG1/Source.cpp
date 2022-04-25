@@ -43,11 +43,6 @@ static void RenderSceneCB()
     Scale += 0.001f;
 
     Pipeline p;
-    /*p.Scale(-(sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3);
-    p.WorldPos(sinf(Scale), 0.0f, 0.0f);
-    p.Rotate(-sinf(Scale) / 2, cos(Scale) * 90.0f, -sinf(Scale) * 90.0f);
-    */
-
     p.Scale(0.1f, 0.1f, 0.1f);
     p.WorldPos(0.0f, 0.0f, 100.0f);
     p.Rotate(0.0f, 0.0f, 0.0f);
