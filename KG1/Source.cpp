@@ -4,6 +4,7 @@
 #include "glm/vec3.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include "pipeline.h"
 
 GLuint VBO;
 GLuint gWorldLocation;
@@ -38,7 +39,13 @@ static void RenderSceneCB()
     static float Scale = 0.0f;
     Scale += 0.001f;
 
-    glm::mat4 edmat;
+    Pipeline p;
+    p.Scale(-(sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3);
+    p.WorldPos(sinf(Scale), 0.0f, 0.0f);
+    p.Rotate(-sinf(Scale) / 2, cos(Scale) * 90.0f, -sinf(Scale) * 90.0f);
+    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.getTransformation());
+
+    /*glm::mat4 edmat;
 
     edmat[0][0] = 1.0f; edmat[0][1] = 0.0f; edmat[0][2] = 0.0f; edmat[0][3] = 0.0f;
 
@@ -88,9 +95,9 @@ static void RenderSceneCB()
 
     scalematrix[3][0] = 0.0f; scalematrix[3][1] = 0.0f; scalematrix[3][2] = 0.0f; scalematrix[3][3] = 1.0f;
 
-    glm::mat4 rez = edmat * rotZ * rotX * rotationMatrix * scalematrix;
+    glm::mat4 rez = edmat * rotZ * rotX * rotationMatrix * scalematrix;*/
 
-    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &rez[0][0]); 
+    //glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &rez[0][0]); 
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
