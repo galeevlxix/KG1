@@ -33,19 +33,64 @@ void main()                                                                     
 static void RenderSceneCB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
 
     static float Scale = 0.0f;
     Scale += 0.001f;
 
-    glm::mat4  World;
+    glm::mat4 edmat;
 
-    World[0][0] = cosf(Scale); World[0][1] = -sinf(Scale); World[0][2] = 0.0f; World[0][3] = sinf(0.0f);
-    World[1][0] = sinf(Scale); World[1][1] = cosf(Scale); World[1][2] = 0.0f; World[1][3] = 0.0f;
-    World[2][0] = 0.0f; World[2][1] = 0.0f; World[2][2] = 1.0f; World[2][3] = 0.0f;
-    World[3][0] = 0.0f; World[3][1] = 0.0f; World[3][2] = 0.0f; World[3][3] = 1.0f;
+    edmat[0][0] = 1.0f; edmat[0][1] = 0.0f; edmat[0][2] = 0.0f; edmat[0][3] = 0.0f;
 
-    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &World[0][0]); 
+    edmat[1][0] = 0.0f; edmat[1][1] = 1.0f; edmat[1][2] = 0.0f; edmat[1][3] = 0.0f;
+
+    edmat[2][0] = 0.0f; edmat[2][1] = 0.0f; edmat[2][2] = 1.0f; edmat[2][3] = 0.0f;
+
+    edmat[3][0] = 0.0f; edmat[3][1] = 0.0f; edmat[3][2] = 0.0f; edmat[3][3] = 1.0f;
+
+    glm::mat4 rotZ;
+
+    rotZ[0][0] = 1.0f; rotZ[0][1] = 0.0f; rotZ[0][2] = 0.0f; rotZ[0][3] = -sinf(Scale) / 2;
+
+    rotZ[1][0] = 0.0f; rotZ[1][1] = 1.0f; rotZ[1][2] = 0.0f; rotZ[1][3] = cosf(Scale) / 2;
+
+    rotZ[2][0] = 0.0f; rotZ[2][1] = 0.0f; rotZ[2][2] = 1.0f; rotZ[2][3] = 0.0f;
+
+    rotZ[3][0] = 0.0f; rotZ[3][1] = 0.0f; rotZ[3][2] = 0.0f; rotZ[3][3] = 1.0f;
+
+    glm::mat4 rotX;
+
+    rotX[0][0] = 1.0f; rotX[0][1] = 0.0f; rotX[0][2] = 0.0f; rotX[0][3] = 0.0f;
+
+    rotX[1][0] = 0.0f; rotX[1][1] = 1.0f; rotX[1][2] = 0.0f; rotX[1][3] = cosf(Scale) / 2;
+
+    rotX[2][0] = 0.0f; rotX[2][1] = 0.0f; rotX[2][2] = 1.0f; rotX[2][3] = -sinf(Scale) / 2;
+
+    rotX[3][0] = 0.0f; rotX[3][1] = 0.0f; rotX[3][2] = 0.0f; rotX[3][3] = 1.0f;
+
+    glm::mat4 rotationMatrix;
+
+    rotationMatrix[0][0] = sinf(Scale); rotationMatrix[0][1] = 0.0f; rotationMatrix[0][2] = 0.0f; rotationMatrix[0][3] = 0.0f;
+
+    rotationMatrix[1][0] = cosf(Scale); rotationMatrix[1][1] = 1.0f; rotationMatrix[1][2] = 0.0f; rotationMatrix[1][3] = 0.0f;
+
+    rotationMatrix[2][0] = 0.0f; rotationMatrix[2][1] = 0.0f; rotationMatrix[2][2] = 1.0f; rotationMatrix[2][3] = 0.0f;
+
+    rotationMatrix[3][0] = 0.0f; rotationMatrix[3][1] = 0.0f; rotationMatrix[3][2] = 0.0f; rotationMatrix[3][3] = 1.0f;
+
+    glm::mat4 scalematrix;
+
+    scalematrix[0][0] = (sinf(Scale) + 1.5) / 3; scalematrix[0][1] = 0.0f; scalematrix[0][2] = 0.0f; scalematrix[0][3] = 0.0f;
+
+    scalematrix[1][0] = 0.0f; scalematrix[1][1] = (sinf(Scale) + 1.5) / 3; scalematrix[1][2] = 0.0f; scalematrix[1][3] = 0.0f;
+
+    scalematrix[2][0] = 0.0f; scalematrix[2][1] = 0.0f; scalematrix[2][2] = 1.0f; scalematrix[2][3] = 0.0f;
+
+    scalematrix[3][0] = 0.0f; scalematrix[3][1] = 0.0f; scalematrix[3][2] = 0.0f; scalematrix[3][3] = 1.0f;
+
+    glm::mat4 rez = edmat * rotZ * rotX * rotationMatrix * scalematrix;
+
+    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &rez[0][0]); 
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
