@@ -6,9 +6,6 @@
 #include <glm/gtx/transform.hpp>
 #include "pipeline.h"
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-
 GLuint VBO;
 GLuint gWorldLocation;
 
@@ -43,12 +40,17 @@ static void RenderSceneCB()
     Scale += 0.001f;
 
     Pipeline p;
+    /*p.Scale(-(sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3);
+    p.WorldPos(sinf(Scale), 0.0f, 0.0f);
+    p.Rotate(-sinf(Scale) / 2, cos(Scale) * 90.0f, -sinf(Scale) * 90.0f);
+    */
+
     p.Scale(0.1f, 0.1f, 0.1f);
     p.WorldPos(0.0f, 0.0f, 100.0f);
     p.Rotate(0.0f, 0.0f, 0.0f);
     p.PerspectiveProj(90.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 10.0f, 10000.0f);
 
-    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.getTransformation());
+    //glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &rez[0][0]); 
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
