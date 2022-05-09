@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+
 #include "glm/vec3.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
+#include "glm/mat4x4.hpp"
+
 #include "pipeline.h"
+
+#define WINDOW_WIDTH 1024.0f
+#define WINDOW_HEIGHT 800.0f
 
 GLuint VBO;
 GLuint gWorldLocation;
@@ -28,11 +32,12 @@ out vec4 FragColor;                                                             
                                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
-    FragColor = vec4(1.0, 0.0, 1.0, 1.0);                                           \n\
+    FragColor = vec4(1.0, 1.0, 1.0, 1.0);                                           \n\
 }";
 
 static void RenderSceneCB()
 {
+    glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0f, 0.0f, 0.0f);
 
@@ -40,17 +45,13 @@ static void RenderSceneCB()
     Scale += 0.001f;
 
     Pipeline p;
-    /*p.Scale(-(sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3, (sinf(Scale) + 1.5) / 3);
-    p.WorldPos(sinf(Scale), 0.0f, 0.0f);
-    p.Rotate(-sinf(Scale) / 2, cos(Scale) * 90.0f, -sinf(Scale) * 90.0f);
-    */
+   
+    p.Scale(cos(Scale * 0.5), sinf(Scale * 0.5), 0.0f);
+    p.WorldPos(sinf(Scale) / 2, cosf(Scale) / 2, 0.0f);
+    p.Rotate(1.0f, 1.0f, 1.0f);
 
-    p.Scale(0.1f, 0.1f, 0.1f);
-    p.WorldPos(0.0f, 0.0f, 100.0f);
-    p.Rotate(0.0f, 0.0f, 0.0f);
-    p.PerspectiveProj(90.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 10.0f, 10000.0f);
-
-    //glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &rez[0][0]); 
+    p.PerspectiveProj(100.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 200.0f);
+    glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.getTransformation());
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -84,7 +85,7 @@ static void CreateVertexBuffer()
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-}
+}   
 
 static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
@@ -153,9 +154,11 @@ static void CompileShaders()
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
+
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-    glutInitWindowSize(832, 624);
-    glutInitWindowPosition(100, 100);
+    
+    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    glutInitWindowPosition(300, 100);
     glutCreateWindow("rewrewregf");
 
     InitializeGlutCallbacks();
