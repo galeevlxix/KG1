@@ -1,22 +1,17 @@
-#pragma once
-
-#define _USE_MATH_DEFINES
-
+#ifndef PIPLINE_H
+#define PIPLINE_H
+#include "math3d.h"
 #include <cmath>
 #include "glm/glm.hpp"
 #include "glm/mat4x4.hpp"
 #include <glm/fwd.hpp>
 
-#define ToRadian(x) ((x) * M_PI / 180.0f)
-
 class Pipeline {
 public:
     Pipeline() :
-        mScale(glm::vec3(1.0f, 1.0f, 1.0f)),
-        mWorldPos(glm::vec3(0.0f, 0.0f, 0.0f)),
-        mRotateInfo(glm::vec3(0.0f, 0.0f, 0.0f)),
-        mPersProj(),
-        mTransformation(glm::mat4()) {}
+        mScale(my_Vector3f(1.0f, 1.0f, 1.0f)),
+        mWorldPos(my_Vector3f(0.0f, 0.0f, 0.0f)),
+        mRotateInfo(my_Vector3f(0.0f, 0.0f, 0.0f)){}
 
     void Scale(float ScaleX, float ScaleY, float ScaleZ)
     {
@@ -43,18 +38,20 @@ public:
         mPersProj.zNear = zNear;
         mPersProj.zFar = zFar;
     }
-    const glm::mat4* getTransformation();
+    const Matrix4f* getTransformation();
+
+    void SetCamera(const my_Vector3f Pos, const my_Vector3f Target, const my_Vector3f Up)
+    {
+        m_camera.Pos = Pos;
+        m_camera.Target = Target;
+        m_camera.Up = Up;
+    }
 
 private:
-    void InitScaleTransform(glm::mat4& m) const;
-    void InitRotateTransform(glm::mat4& m) const;
-    void InitTranslationTransform(glm::mat4& m) const;
-    void InitPerspectiveProj(glm::mat4& m) const;
-
-    glm::vec3 mScale;
-    glm::vec3 mWorldPos;
-    glm::vec3 mRotateInfo;
-    glm::mat4 mTransformation;
+    my_Vector3f mScale;
+    my_Vector3f mWorldPos;
+    my_Vector3f mRotateInfo;
+    Matrix4f mTransformation;
 
     struct {
         float FOV;
@@ -63,4 +60,11 @@ private:
         float zNear;
         float zFar;
     } mPersProj;
+
+    struct {
+        my_Vector3f Pos;
+        my_Vector3f Target;
+        my_Vector3f Up;
+    } m_camera;
 };
+#endif

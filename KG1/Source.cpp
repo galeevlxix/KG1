@@ -1,17 +1,22 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-
+#include <assert.h>
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
 
 #include "pipeline.h"
+#include "Camera.h"
+
 
 #define WINDOW_WIDTH 1024.0f
 #define WINDOW_HEIGHT 800.0f
 
 GLuint VBO;
+GLuint IBO;
 GLuint gWorldLocation;
+
+Camera* pGameCamera = nullptr;
 
 static const char* pVS = "                                                          \n\
 #version 330                                                                        \n\
@@ -19,55 +24,82 @@ static const char* pVS = "                                                      
 layout (location = 0) in vec3 Position;                                             \n\
                                                                                     \n\
 uniform mat4 gWorld;                                                                \n\
-                                                                                    \n\
+out vec4 Color;                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
     gl_Position = gWorld * vec4(Position, 1.0);                                     \n\
+    Color = vec4(clamp(Position, 0.0, 1.0), 1.0);                                   \n\
 }";
 
 static const char* pFS = "                                                          \n\
 #version 330                                                                        \n\
                                                                                     \n\
+in vec4 Color;                                                                      \n\
 out vec4 FragColor;                                                                 \n\
                                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);                                           \n\
+    FragColor = Color;                                                              \n\
 }";
 
 static void RenderSceneCB()
 {
+    pGameCamera->OnRender();
     glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0f, 0.0f, 0.0f);
 
     static float Scale = 0.0f;
     Scale += 0.001f;
 
     Pipeline p;
    
-    p.Scale(cos(Scale * 0.5), sinf(Scale * 0.5), 0.0f);
-    p.WorldPos(sinf(Scale) / 2, cosf(Scale) / 2, 0.0f);
-    p.Rotate(1.0f, 1.0f, 1.0f);
+    /*p.Scale(cos(Scale * 0.5), sinf(Scale * 0.5), 0.0f);
+    p.WorldPos(sinf(Scale) / 10, cosf(Scale) / 10, 0.0f);*/
 
-    p.PerspectiveProj(100.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 200.0f);
+
+    p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+    p.PerspectiveProj(50.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
     glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.getTransformation());
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);*/
 
     glDrawArrays(GL_POLYGON, 0, 8);
+
+   /* glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);*/
 
     glDisableVertexAttribArray(0);
 
     glutSwapBuffers();
 }
 
+static void SpecialKeyboardCB(int Key, int x, int y)
+{
+    pGameCamera->OnKeyboard(Key);
+}
+
+static void KeyboardCB(unsigned char Key, int x, int y)
+{
+    switch (Key) {
+    case 'q':
+        exit(0);
+    }
+}
+
+static void PassiveMouseCB(int x, int y)
+{
+    pGameCamera->OnMouse(x, y);
+}
+
 static void InitializeGlutCallbacks()
 {
     glutDisplayFunc(RenderSceneCB);
     glutIdleFunc(RenderSceneCB);
+    glutSpecialFunc(SpecialKeyboardCB);
+    glutPassiveMotionFunc(PassiveMouseCB);
+    glutKeyboardFunc(KeyboardCB);
 }
 
 static void CreateVertexBuffer()
@@ -76,8 +108,24 @@ static void CreateVertexBuffer()
     double t = 1.0;
     const double PI = 3.141592653589793;
 
-    glm::vec3 Vertices[8];
+    /*glm::vec3 Vertices[8] = {
+        glm::vec3(-1.0,-1.0,1.0),
+        glm::vec3(-1.0, 1.0, 1.0),
+        glm::vec3(1.0,1.0,1.0),
+        glm::vec3(1.0,-1.0,1.0),
+        glm::vec3(-1.0,-1.0,-1.0),
+        glm::vec3(-1.0,1.0,-1.0),
+        glm::vec3(1.0,1.0,-1.0),
+        glm::vec3(1.0,-1.0,-1.0)
+    };*/
 
+    /*glm::vec3 Vertices[4];
+    Vertices[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+    Vertices[1] = glm::vec3(0.0f, -1.0f, 1.0f);
+    Vertices[2] = glm::vec3(1.0f, -1.0f, 0.0f);
+    Vertices[3] = glm::vec3(0.0f, 1.0f, 0.0f);*/
+
+    glm::vec3 Vertices[8];
     for (int i = 0; i < 8; i++) {
         Vertices[i] = glm::vec3(r * cos(t + i * PI * 0.25), r * sin(t + i * PI * 0.25), 0.0f);
     }
@@ -86,6 +134,18 @@ static void CreateVertexBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 }   
+
+static void CreateIndexBuffer()
+{
+    unsigned int Indices[] = { 0, 3, 1,
+                               1, 3, 2,
+                               2, 3, 0,
+                               0, 2, 1 };
+
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+}
 
 static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
@@ -161,7 +221,12 @@ int main(int argc, char** argv)
     glutInitWindowPosition(300, 100);
     glutCreateWindow("rewrewregf");
 
+    glutGameModeString("1024x800@32");
+    glutEnterGameMode();
+
     InitializeGlutCallbacks();
+
+    pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Must be done after glut is initialized!
     GLenum res = glewInit();
