@@ -53,9 +53,8 @@ static void RenderSceneCB()
 
     Pipeline p;
    
-    /*p.Scale(cos(Scale * 0.5), sinf(Scale * 0.5), 0.0f);
-    p.WorldPos(sinf(Scale) / 10, cosf(Scale) / 10, 0.0f);*/
-
+    p.Scale(cos(Scale * 0.5), sinf(Scale * 0.5), 0.0f);
+    p.WorldPos(sinf(Scale) / 10, cosf(Scale) / 10, 2.0f);
 
     p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
     p.PerspectiveProj(50.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
@@ -127,7 +126,7 @@ static void CreateVertexBuffer()
 
     glm::vec3 Vertices[8];
     for (int i = 0; i < 8; i++) {
-        Vertices[i] = glm::vec3(r * cos(t + i * PI * 0.25), r * sin(t + i * PI * 0.25), 0.0f);
+        Vertices[i] = glm::vec3(r * cos(t + i * PI * 0.25), r * sin(t + i * PI * 0.25), 5.0f);
     }
     
     glGenBuffers(1, &VBO);
