@@ -6,6 +6,8 @@
 #include <GL/glew.h>
 #include <Magick++.h>
 
+using namespace Magick;
+
 class Texture
 {
 public:
@@ -19,9 +21,10 @@ private:
     std::string m_fileName;
     GLenum m_textureTarget;
     GLuint m_textureObj;
-    Magick::Image* m_pImage;
-    Magick::Blob m_blob;
+    Image* m_pImage;
+    Blob m_blob;
 };
 
 
 #endif	/* TEXTURE_H */
+
