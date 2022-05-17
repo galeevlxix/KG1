@@ -9,8 +9,8 @@
 
 struct my_Vector2i
 {
-    int x;
-    int y;
+    float x;
+    float y;
 };
 
 struct my_Vector3f

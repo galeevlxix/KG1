@@ -11,6 +11,7 @@
 #include "lighting_technique.h"
 #include "glut_backend.h"
 #include "math3d.h"
+#include "Utils.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -19,15 +20,17 @@ using namespace glm;
 
 struct Vertex
 {
-    vec3 m_pos;
+    my_Vector3f m_pos;
     vec2 m_tex;
+    my_Vector3f m_normal;
 
     Vertex() {}
 
-    Vertex(vec3 pos, vec2 tex)
+    Vertex(my_Vector3f pos, vec2 tex)
     {
         m_pos = pos;
         m_tex = tex;
+        m_normal = my_Vector3f(0.0f, 0.0f, 0.0f);
     }
 };
 
@@ -43,6 +46,8 @@ public:
         Scale = 0.0f;
         directionalLight.Color = my_Vector3f(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = 0.5f;
+        directionalLight.DiffuseIntensity = 0.75f;
+        directionalLight.Direction = my_Vector3f(1.0f, 0.0, 0.0);
     }
 
     ~Main()
@@ -54,15 +59,45 @@ public:
 
     bool Init()
     {
-        pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT);
+        my_Vector3f Pos(0.0f, 0.0f, -3.0f);
+        my_Vector3f Target(0.0f, 0.0f, 1.0f);
+        my_Vector3f Up(0.0, 1.0f, 0.0f);
 
-        CreateVertexBuffer();
-        CreateIndexBuffer();
+        pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
+        unsigned int Indices[] = { // грани куба
+                        // ближн€€
+                        1, 3, 0,
+                        0, 3, 2,
+
+                        // дальн€€
+                        9, 11, 8,
+                        8, 11, 10,
+
+                        // лева€
+                        13, 15, 12,
+                        12, 15, 14,
+
+                        // права€
+                        5, 7, 4,
+                        4, 7, 6,
+
+                        // верхн€€
+                        17, 19, 16,
+                        16, 19, 18,
+
+                        // нижн€€
+                        22, 20, 23,
+                        23, 20, 21 };
+
+        
+        CreateIndexBuffer(Indices, sizeof(Indices));
+        CreateVertexBuffer(Indices, ARRAY_SIZE_IN_ELEMENTS(Indices));
         m_pEffect = new LightingTechnique();
 
         if (!m_pEffect->Init())
         {
+            printf("Error initializing the lighting technique\n");
             return false;
         }
 
@@ -93,26 +128,35 @@ public:
         Scale += 0.001f;
 
         Pipeline p;
+        
         p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
         p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
-        m_pEffect->SetWVP(p.getTransformation());
+        m_pEffect->SetWVP(p.GetWVPTrans());
+        const Matrix4f& WorldTransformation = p.getTransformation();
+
+        m_pEffect->SetWorldMatrix(WorldTransformation);
+
         m_pEffect->SetDirectionalLight(directionalLight);
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
         pTexture->Bind(GL_TEXTURE0);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-
+        glDisableVertexAttribArray(2);
         glutSwapBuffers();
     }
 
@@ -141,6 +185,13 @@ public:
         case 's':
             directionalLight.AmbientIntensity -= 0.05f;
             break;
+        case 'z':
+            directionalLight.DiffuseIntensity += 0.05f;
+            break;
+
+        case 'x':
+            directionalLight.DiffuseIntensity -= 0.05f;
+            break;
         }
     }
 
@@ -152,75 +203,75 @@ public:
 
 private:
 
-    void CreateVertexBuffer()
+    void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount,
+        Vertex* pVertices, unsigned int VertexCount) {
+        for (unsigned int i = 0; i < IndexCount; i += 3) {
+            unsigned int Index0 = pIndices[i];
+            unsigned int Index1 = pIndices[i + 1];
+            unsigned int Index2 = pIndices[i + 2];
+            my_Vector3f v1 = pVertices[Index1].m_pos - pVertices[Index0].m_pos;
+            my_Vector3f v2 = pVertices[Index2].m_pos - pVertices[Index0].m_pos;
+            my_Vector3f Normal = v1.Cross(v2);
+            Normal.Normalize();
+
+            pVertices[Index0].m_normal = pVertices[Index0].m_normal + Normal;
+            pVertices[Index1].m_normal = pVertices[Index1].m_normal + Normal;
+            pVertices[Index2].m_normal = pVertices[Index2].m_normal + Normal;
+        }
+
+        for (unsigned int i = 0; i < VertexCount; i++) {
+            pVertices[i].m_normal.Normalize();
+        }
+    }
+
+    void CreateVertexBuffer(const unsigned int* pIndices, unsigned int IndexCount)
     {
         Vertex Vertices[24] = { //вершины куба
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(0.499f, 1.0f)),    // 2 2  нижн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.251f, 1.0f)),     // 3 3  нижн€€ права€ ближн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
+        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),    // 2 2  нижн€€ лева€ ближн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),     // 3 3  нижн€€ права€ ближн€€
 
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
+        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
+        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
 
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
+        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
 
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
 
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
+        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
+        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
+        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
 
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
+        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
+        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
         };
+
+        unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
+
+        CalcNormals(pIndices, IndexCount, Vertices, VertexCount);
 
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
     }
 
-    void CreateIndexBuffer()
+    void CreateIndexBuffer(const unsigned int* pIndices, unsigned int SizeInBytes)
     {
-        unsigned int Indices[] = { // грани куба
-                        // ближн€€
-                        1, 3, 0,
-                        0, 3, 2,
-
-                        // дальн€€
-                        9, 11, 8,
-                        8, 11, 10,
-
-                        // лева€
-                        13, 15, 12,
-                        12, 15, 14,
-
-                        // права€
-                        5, 7, 4,
-                        4, 7, 6,
-
-                        // верхн€€
-                        17, 19, 16,
-                        16, 19, 18,
-
-                        // нижн€€
-                        22, 20, 23,
-                        23, 20, 21 };
-
         glGenBuffers(1, &IBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeInBytes, pIndices, GL_STATIC_DRAW);
     }
 
     GLuint VBO;

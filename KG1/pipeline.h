@@ -38,7 +38,7 @@ public:
         mPersProj.zNear = zNear;
         mPersProj.zFar = zFar;
     }
-    const Matrix4f* getTransformation();
+    const Matrix4f& getTransformation();
 
     void SetCamera(const my_Vector3f Pos, const my_Vector3f Target, const my_Vector3f Up)
     {
@@ -47,11 +47,14 @@ public:
         m_camera.Up = Up;
     }
 
+    const Matrix4f& GetWVPTrans();
+
 private:
     my_Vector3f mScale;
     my_Vector3f mWorldPos;
     my_Vector3f mRotateInfo;
     Matrix4f mTransformation;
+    Matrix4f m_WVPtransformation;
 
     struct {
         float FOV;
