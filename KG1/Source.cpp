@@ -8,6 +8,8 @@
 #include "pipeline.h"
 #include "camera.h"
 #include "texture.h"
+#include "lighting_technique.h"
+#include "glut_backend.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -76,7 +78,7 @@ static void RenderSceneCB()
 
     Pipeline p;
     p.Rotate(0.0f, Scale * 50 , 20 * sinf(Scale));
-    p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale), 5.0f);
+    p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
     p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
     p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
@@ -131,37 +133,36 @@ static void InitializeGlutCallbacks()
 
 static void CreateVertexBuffer()
 {
-    Vertex Vertices[24] = { 
+    Vertex Vertices[24] = { //вершины куба
+        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
+        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(0.499f, 1.0f)),    // 2 2  нижн€€ лева€ ближн€€
+        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.251f, 1.0f)),     // 3 3  нижн€€ права€ ближн€€
 
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)),     // 0 0  верхн€€ лева€ ближн€€ 
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)),      // 1 1  верхн€€ права€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(1.0f, 1.0f)),    // 2 2  нижн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.0f, 1.0f)),     // 3 3  нижн€€ права€ ближн€€
+        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
+        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
+        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
+        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
 
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)),      // 1 4  верхн€€ права€ ближн€€
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.0f, 0.0f)),     // 5 5  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(1.0f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.0f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
+        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
+        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
+        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
 
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(1.0f, 0.0f)),     // 5 8  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.0f, 0.0f)),    // 4 9  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.0f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
+        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
+        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
 
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(1.0f, 0.0f)),    // 4 12  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)),     // 0 13  верхн€€ лева€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(0.0f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
+        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
+        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
+        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
+        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
 
-        Vertex(glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(1.0f, 0.0f)),    // 4 16  верхн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, 1.0f, -1.0f), glm::vec2(0.0f, 0.0f)),     // 5 17  верхн€€ права€ дальн€€
-        Vertex(glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)),     // 0 18  верхн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)),      // 1 19  верхн€€ права€ ближн€€
-
-        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(1.0f, 0.0f)),    // 2 20  нижн€€ лева€ ближн€€
-        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.0f, 0.0f)),     // 3 21  нижн€€ права€ ближн€€
-        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 1.0f)),   // 6 22  нижн€€ лева€ дальн€€
-        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.0f, 1.0f)),    // 7 23  нижн€€ права€ дальн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
+        Vertex(glm::vec3(1.0f, -1.0f, 1.0f), glm::vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
+        Vertex(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
+        Vertex(glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
     };
 
     glGenBuffers(1, &VBO);
@@ -305,7 +306,7 @@ int main(int argc, char** argv)
 
     glUniform1i(gSampler, 0);
 
-    pTexture = new Texture(GL_TEXTURE_2D, "C:\\PickerChan.png");
+    pTexture = new Texture(GL_TEXTURE_2D, "C:\\tnt.png");
 
     if (!pTexture->Load()) {
         return 1;
