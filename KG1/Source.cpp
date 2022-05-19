@@ -92,7 +92,9 @@ public:
 
         
         CreateIndexBuffer(Indices, sizeof(Indices));
+
         CreateVertexBuffer(Indices, ARRAY_SIZE_IN_ELEMENTS(Indices));
+
         m_pEffect = new LightingTechnique();
 
         if (!m_pEffect->Init())
@@ -138,8 +140,12 @@ public:
         const Matrix4f& WorldTransformation = p.getTransformation();
 
         m_pEffect->SetWorldMatrix(WorldTransformation);
-
         m_pEffect->SetDirectionalLight(directionalLight);
+
+        m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
+
+        m_pEffect->SetMatSpecularIntensity(1.0f);
+        m_pEffect->SetMatSpecularPower(32);
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);

@@ -2,7 +2,6 @@
 #include <GL/freeglut.h>
 
 const static float STEP_SCALE = 0.1f;
-const static int MARGIN = 10;
 
 Camera::Camera(int WindowWidth, int WindowHeight)
 {
@@ -63,10 +62,10 @@ void Camera::Init()
 
     m_AngleV = -ToDegree(asin(m_target.y));
 
-    m_mousePos.x = m_windowWidth / 2;
-    m_mousePos.y = m_windowHeight / 2;
+    m_lastMousePos.x = m_windowWidth / 2;
+    m_lastMousePos.y = m_windowHeight / 2;
 
-    glutWarpPointer(m_mousePos.x, m_mousePos.y);
+    glutWarpPointer(m_lastMousePos.x, m_lastMousePos.y);
 }
 
 
@@ -118,20 +117,18 @@ bool Camera::OnKeyboard(int Key)
 
 void Camera::OnMouse(int x, int y)
 {
-    if ((x == m_mousePos.x) && (y == m_mousePos.y)) return;
+    const int DeltaX = x - m_lastMousePos.x;
+    const int DeltaY = y - m_lastMousePos.y;
 
-    const int DeltaX = x - m_mousePos.x;
-    const int DeltaY = y - m_mousePos.y;
+    m_lastMousePos.x = x;
+    m_lastMousePos.y = y;
 
-    m_mousePos.x = x;
-    m_mousePos.y = y;
+    if(DeltaX == 0 && DeltaY == 0) return;
 
     m_AngleH += (float)DeltaX / 20.0f;
     m_AngleV += (float)DeltaY / 20.0f;
 
-
     Update();
-    glutWarpPointer(m_mousePos.x, m_mousePos.y);
 }
 
 void Camera::OnRender()

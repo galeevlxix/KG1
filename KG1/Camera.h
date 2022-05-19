@@ -1,9 +1,6 @@
 #ifndef CAMERA_H
 #define	CAMERA_H
 
-#include "glm/glm.hpp"
-#include "glm/mat4x4.hpp"
-#include <glm/fwd.hpp>
 #include "math3d.h"
 
 class Camera
@@ -50,7 +47,7 @@ private:
     float m_AngleH;
     float m_AngleV;
 
-    my_Vector2i m_mousePos;
+    my_Vector2i m_lastMousePos;
 };
 
 #endif	/* CAMERA_H */
