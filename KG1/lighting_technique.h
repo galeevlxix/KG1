@@ -4,8 +4,6 @@
 #include "technique.h"
 #include "math3d.h"
 
-#define MAX_POINT_LIGHTS 3
-
 struct BaseLight
 {
     my_Vector3f Color;
@@ -50,9 +48,24 @@ struct PointLight : public BaseLight
     }
 };
 
+struct SpotLight : public PointLight
+{
+    my_Vector3f Direction;
+    float Cutoff;
+
+    SpotLight()
+    {
+        Direction = my_Vector3f(0.0f, 0.0f, 0.0f);
+        Cutoff = 0.0f;
+    }
+};
+
 class LightingTechnique : public Technique
 {
 public:
+    static const unsigned int MAX_POINT_LIGHTS = 2;
+    static const unsigned int MAX_SPOT_LIGHTS = 2;
+
     LightingTechnique();
     virtual bool Init();
 
@@ -66,6 +79,7 @@ public:
     void SetMatSpecularPower(float Power);
 
     void SetPointLights(unsigned int NumLights, const PointLight* pLights);
+    void SetSpotLights(unsigned int NumLights, const SpotLight* pLights);
 
 private:
     GLuint m_WVPLocation;
@@ -76,7 +90,7 @@ private:
     GLuint m_matSpecularIntensityLocation;
     GLuint m_matSpecularPowerLocation;
     GLuint m_numPointLightsLocation;
-
+    GLuint m_numSpotLightsLocation;
     struct {
         GLuint Color;
         GLuint AmbientIntensity;
@@ -95,6 +109,21 @@ private:
             GLuint Exp;
         } Atten;
     } m_pointLightsLocation[MAX_POINT_LIGHTS];
+    struct {
+        GLuint Color;
+        GLuint AmbientIntensity;
+        GLuint DiffuseIntensity;
+        GLuint Position;
+        GLuint Direction;
+        GLuint Cutoff;
+        struct {
+            GLuint Constant;
+            GLuint Linear;
+            GLuint Exp;
+        } Atten;
+    } m_spotLightsLocation[MAX_SPOT_LIGHTS];
 };
+
+
 
 #endif // LIGHTINGTECHNIQUE_H
