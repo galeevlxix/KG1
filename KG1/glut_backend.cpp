@@ -70,7 +70,6 @@ void GLUTBackendRun(ICallbacks* pCallbacks) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glFrontFace(GL_FRONT);
     glCullFace(GL_BACK);
-
     glEnable(GL_CULL_FACE);
 
     s_pCallbacks = pCallbacks;

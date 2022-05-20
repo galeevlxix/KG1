@@ -129,6 +129,25 @@ public:
 
         Scale += 0.001f;
 
+        PointLight pl[3];
+        pl[0].DiffuseIntensity = 0.5f;
+        pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
+        pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
+        pl[0].Attenuation.Linear = 0.1f;
+
+        pl[1].DiffuseIntensity = 0.5f;
+        pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
+        pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
+        pl[1].Attenuation.Linear = 0.1f;
+
+        pl[2].DiffuseIntensity = 0.5f;
+        pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
+        pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
+        pl[2].Attenuation.Linear = 0.1f;
+
+        m_pEffect->SetPointLights(3, pl);
+
+
         Pipeline p;
         
         p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
@@ -144,7 +163,7 @@ public:
 
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
 
-        m_pEffect->SetMatSpecularIntensity(1.0f);
+        m_pEffect->SetMatSpecularIntensity(32.0f);
         m_pEffect->SetMatSpecularPower(32);
 
         glEnableVertexAttribArray(0);
@@ -262,7 +281,16 @@ private:
         Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
         Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
         Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
+               
         };
+
+        //Vertex Floor[4] = {
+        //    //пол
+        //    Vertex(my_Vector3f(-20.0f, -2.0f, -20.0f), vec2(0.0f, 0.0f)),    // 2 20  нижн€€ лева€ ближн€€
+        //    Vertex(my_Vector3f(-20.0f, -2.0f, 20.0f), vec2(0.0f, 1.0f)),     // 3 21  нижн€€ права€ ближн€€
+        //    Vertex(my_Vector3f(20.0f, -2.0f, -20.0f), vec2(1.0f, 0.0f)),   // 6 22  нижн€€ лева€ дальн€€
+        //    Vertex(my_Vector3f(20.0f, -2.0f, 20.0f), vec2(1.0f, 1.0f))    // 7 23  нижн€€ права€ дальн€€
+        //};
 
         unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
 
