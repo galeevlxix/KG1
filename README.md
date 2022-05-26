@@ -833,5 +833,325 @@ struct PointLight : public BaseLight
 ### Функция SetPointLights принимает массив структур PointLight и размер массива и обновляет соответствующие значения в шейдере
 ```c++
 void SetPointLights(unsigned int NumLights, const PointLight* pLights);
-GLuint m_numPointLightsLocation;
 ```
+Эта функция обновляет шейдер с значениями точечных источников через перебор элементов массива и передачи каждого атрибута элемента одного за другим.
+```c++
+void LightingTechnique::SetPointLights(unsigned int NumLights, const PointLight* pLights)
+{
+    glUniform1i(m_numPointLightsLocation, NumLights);
+
+    for (unsigned int i = 0; i < NumLights; i++) {
+        glUniform3f(m_pointLightsLocation[i].Color, pLights[i].Color.x, pLights[i].Color.y, pLights[i].Color.z);
+        glUniform1f(m_pointLightsLocation[i].AmbientIntensity, pLights[i].AmbientIntensity);
+        glUniform1f(m_pointLightsLocation[i].DiffuseIntensity, pLights[i].DiffuseIntensity);
+        glUniform3f(m_pointLightsLocation[i].Position, pLights[i].Position.x, pLights[i].Position.y, pLights[i].Position.z);
+        glUniform1f(m_pointLightsLocation[i].Atten.Constant, pLights[i].Attenuation.Constant);
+        glUniform1f(m_pointLightsLocation[i].Atten.Linear, pLights[i].Attenuation.Linear);
+        glUniform1f(m_pointLightsLocation[i].Atten.Exp, pLights[i].Attenuation.Exp);
+    }
+}
+```
+### Обновленный фрагментный шейдер. 
+Функция CalcLightInternal инкапсулирует общую часть между 2 типами света. Структура BaseLight хранит интенсивность и цвет. LightDirection подается отдельно по причине выше. Вершинная нормаль так же предоставляется потому, что мы нормируем ее только при входе в фрагментный шейдер и используем во многих вызовах в этой функции.
+Функция CalcPointLight вычисления точечного источника света будет подсчитана для каждого настроенного точечного источника света, поэтому она принимает индекс света в качестве и использует его в глобальном массиве. Она вычисляет вектор из источника света в мировую позицию, полученную из вершинного шейдера.
+```c++
+static const char* pFS = "                                                          \n\
+#version 330                                                                        \n\
+                                                                                    \n\
+const int MAX_POINT_LIGHTS = 3;                                                     \n\
+                                                                                    \n\
+in vec2 TexCoord0;                                                                  \n\
+in vec3 Normal0;                                                                    \n\
+in vec3 WorldPos0;                                                                  \n\
+                                                                                    \n\
+out vec4 FragColor;                                                                 \n\
+                                                                                    \n\
+struct BaseLight                                                                    \n\
+{                                                                                   \n\
+    vec3 Color;                                                                     \n\
+    float AmbientIntensity;                                                         \n\
+    float DiffuseIntensity;                                                         \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct DirectionalLight                                                             \n\
+{                                                                                   \n\
+    BaseLight Base;                                                                 \n\
+    vec3 Direction;                                                                 \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct Attenuation                                                                  \n\
+{                                                                                   \n\
+    float Constant;                                                                 \n\
+    float Linear;                                                                   \n\
+    float Exp;                                                                      \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct PointLight                                                                           \n\
+{                                                                                           \n\
+    BaseLight Base;                                                                         \n\
+    vec3 Position;                                                                          \n\
+    Attenuation Atten;                                                                      \n\
+};                                                                                          \n\
+                                                                                            \n\
+uniform int gNumPointLights;                                                                \n\
+uniform DirectionalLight gDirectionalLight;                                                 \n\
+uniform PointLight gPointLights[MAX_POINT_LIGHTS];                                          \n\
+uniform sampler2D gSampler;                                                                 \n\
+uniform vec3 gEyeWorldPos;                                                                  \n\
+uniform float gMatSpecularIntensity;                                                        \n\
+uniform float gSpecularPower;                                                               \n\
+                                                                                            \n\
+vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)                   \n\
+{                                                                                           \n\
+    vec4 AmbientColor = vec4(Light.Color, 1.0f) * Light.AmbientIntensity;                   \n\
+    float DiffuseFactor = dot(Normal, -LightDirection);                                     \n\
+                                                                                            \n\
+    vec4 DiffuseColor  = vec4(0, 0, 0, 0);                                                  \n\
+    vec4 SpecularColor = vec4(0, 0, 0, 0);                                                  \n\
+                                                                                            \n\
+    if (DiffuseFactor > 0) {                                                                \n\
+        DiffuseColor = vec4(Light.Color, 1.0f) * Light.DiffuseIntensity * DiffuseFactor;    \n\
+                                                                                            \n\
+        vec3 VertexToEye = normalize(gEyeWorldPos - WorldPos0);                             \n\
+        vec3 LightReflect = normalize(reflect(LightDirection, Normal));                     \n\
+        float SpecularFactor = dot(VertexToEye, LightReflect);                              \n\
+        SpecularFactor = pow(SpecularFactor, gSpecularPower);                               \n\
+        if (SpecularFactor > 0) {                                                           \n\
+            SpecularColor = vec4(Light.Color, 1.0f) *                                       \n\
+                            gMatSpecularIntensity * SpecularFactor;                         \n\
+        }                                                                                   \n\
+    }                                                                                       \n\
+                                                                                            \n\
+    return (AmbientColor + DiffuseColor + SpecularColor);                                   \n\
+}                                                                                           \n\
+                                                                                            \n\
+vec4 CalcDirectionalLight(vec3 Normal)                                                      \n\
+{                                                                                           \n\
+    return CalcLightInternal(gDirectionalLight.Base, gDirectionalLight.Direction, Normal); \n\
+}                                                                                           \n\
+                                                                                            \n\
+vec4 CalcPointLight(int Index, vec3 Normal)                                                 \n\
+{                                                                                           \n\
+    vec3 LightDirection = WorldPos0 - gPointLights[Index].Position;                         \n\
+    float Distance = length(LightDirection);                                                \n\
+    LightDirection = normalize(LightDirection);                                             \n\
+                                                                                            \n\
+    vec4 Color = CalcLightInternal(gPointLights[Index].Base, LightDirection, Normal);       \n\
+    float Attenuation =  gPointLights[Index].Atten.Constant +                               \n\
+                         gPointLights[Index].Atten.Linear * Distance +                      \n\
+                         gPointLights[Index].Atten.Exp * Distance * Distance;               \n\
+                                                                                            \n\
+    return Color / Attenuation;                                                             \n\
+}                                                                                           \n\
+                                                                                            \n\
+void main()                                                                                 \n\
+{                                                                                           \n\
+    vec3 Normal = normalize(Normal0);                                                       \n\
+    vec4 TotalLight = CalcDirectionalLight(Normal);                                         \n\
+                                                                                            \n\
+    for (int i = 0 ; i < gNumPointLights ; i++) {                                           \n\
+        TotalLight += CalcPointLight(i, Normal);                                            \n\
+    }                                                                                       \n\
+                                                                                            \n\
+    FragColor = texture2D(gSampler, TexCoord0.xy) * TotalLight;                             \n\
+}";
+```
+### В цикле рендера
+```c++
+PointLight pl[3];
+pl[0].DiffuseIntensity = 0.5f;
+pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
+pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
+pl[0].Attenuation.Linear = 0.1f;
+
+pl[1].DiffuseIntensity = 0.5f;
+pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
+pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
+pl[1].Attenuation.Linear = 0.1f;
+
+pl[2].DiffuseIntensity = 0.5f;
+pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
+pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
+pl[2].Attenuation.Linear = 0.1f;
+
+m_pEffect->SetPointLights(3, pl);
+```
+## Результат
+![20](https://github.com/galeevlxix/KG1/raw/laba34/20.png)
+## Прожектор
+### Обновленный фрагментный шейдер
+Структура SpotLight, которая определяет прожектор, наследуется от точечного света и добавляет 3 новых параметра:структуру PointLight, вектор направления и значение отсекания.
+Функция CalcPointLight теперь принимает экземпляр структуры PointLight в качестве параметра вместо обращения к глобальному массиву.
+
+```c++
+static const char* pFS = "                                                          \n\
+#version 330                                                                        \n\
+                                                                                    \n\
+const int MAX_POINT_LIGHTS = 3;                                                     \n\
+const int MAX_SPOT_LIGHTS = 2;                                                      \n\
+                                                                                    \n\
+in vec2 TexCoord0;                                                                  \n\
+in vec3 Normal0;                                                                    \n\
+in vec3 WorldPos0;                                                                  \n\
+                                                                                    \n\
+out vec4 FragColor;                                                                 \n\
+                                                                                    \n\
+struct BaseLight                                                                    \n\
+{                                                                                   \n\
+    vec3 Color;                                                                     \n\
+    float AmbientIntensity;                                                         \n\
+    float DiffuseIntensity;                                                         \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct DirectionalLight                                                             \n\
+{                                                                                   \n\
+    BaseLight Base;                                                                 \n\
+    vec3 Direction;                                                                 \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct Attenuation                                                                  \n\
+{                                                                                   \n\
+    float Constant;                                                                 \n\
+    float Linear;                                                                   \n\
+    float Exp;                                                                      \n\
+};                                                                                  \n\
+                                                                                    \n\
+struct PointLight                                                                           \n\
+{                                                                                           \n\
+    BaseLight Base;                                                                         \n\
+    vec3 Position;                                                                          \n\
+    Attenuation Atten;                                                                      \n\
+};                                                                                          \n\
+                                                                                            \n\
+struct SpotLight                                                                            \n\
+{                                                                                           \n\
+    PointLight Base;                                                                        \n\
+    vec3 Direction;                                                                         \n\
+    float Cutoff;                                                                           \n\
+};                                                                                          \n\
+                                                                                            \n\
+uniform int gNumPointLights;                                                                \n\
+uniform int gNumSpotLights;                                                                 \n\
+uniform DirectionalLight gDirectionalLight;                                                 \n\
+uniform PointLight gPointLights[MAX_POINT_LIGHTS];                                          \n\
+uniform SpotLight gSpotLights[MAX_SPOT_LIGHTS];                                             \n\
+uniform sampler2D gSampler;                                                                 \n\
+uniform vec3 gEyeWorldPos;                                                                  \n\
+uniform float gMatSpecularIntensity;                                                        \n\
+uniform float gSpecularPower;                                                               \n\
+                                                                                            \n\
+vec4 CalcLightInternal( BaseLight Light, vec3 LightDirection, vec3 Normal)            \n\
+{                                                                                           \n\
+    vec4 AmbientColor = vec4(Light.Color, 1.0f) * Light.AmbientIntensity;                   \n\
+    float DiffuseFactor = dot(Normal, -LightDirection);                                     \n\
+                                                                                            \n\
+    vec4 DiffuseColor  = vec4(0, 0, 0, 0);                                                  \n\
+    vec4 SpecularColor = vec4(0, 0, 0, 0);                                                  \n\
+                                                                                            \n\
+    if (DiffuseFactor > 0) {                                                                \n\
+        DiffuseColor = vec4(Light.Color, 1.0f) * Light.DiffuseIntensity * DiffuseFactor;    \n\
+                                                                                            \n\
+        vec3 VertexToEye = normalize(gEyeWorldPos - WorldPos0);                             \n\
+        vec3 LightReflect = normalize(reflect(LightDirection, Normal));                     \n\
+        float SpecularFactor = dot(VertexToEye, LightReflect);                              \n\
+        SpecularFactor = pow(SpecularFactor, gSpecularPower);                               \n\
+        if (SpecularFactor > 0) {                                                           \n\
+            SpecularColor = vec4(Light.Color, 1.0f) *                                       \n\
+                            gMatSpecularIntensity * SpecularFactor;                         \n\
+        }                                                                                   \n\
+    }                                                                                       \n\
+                                                                                            \n\
+    return (AmbientColor + DiffuseColor + SpecularColor);                                   \n\
+}                                                                                           \n\
+                                                                                            \n\
+vec4 CalcDirectionalLight(vec3 Normal)                                                      \n\
+{                                                                                           \n\
+    return CalcLightInternal(gDirectionalLight.Base, gDirectionalLight.Direction, Normal);  \n\
+}                                                                                           \n\
+                                                                                            \n\
+vec4 CalcPointLight( PointLight l, vec3 Normal)                                       \n\
+{                                                                                           \n\
+    vec3 LightDirection = WorldPos0 - l.Position;                                           \n\
+    float Distance = length(LightDirection);                                                \n\
+    LightDirection = normalize(LightDirection);                                             \n\
+                                                                                            \n\
+    vec4 Color = CalcLightInternal(l.Base, LightDirection, Normal);                         \n\
+    float Attenuation =  l.Atten.Constant +                                                 \n\
+                         l.Atten.Linear * Distance +                                        \n\
+                         l.Atten.Exp * Distance * Distance;                                 \n\
+                                                                                            \n\
+    return Color / Attenuation;                                                             \n\
+}                                                                                           \n\
+                                                                                            \n\
+vec4 CalcSpotLight( SpotLight l, vec3 Normal)                                         \n\
+{                                                                                           \n\
+    vec3 LightToPixel = normalize(WorldPos0 - l.Base.Position);                             \n\
+    float SpotFactor = dot(LightToPixel, l.Direction);                                      \n\
+                                                                                            \n\
+    if (SpotFactor > l.Cutoff) {                                                            \n\
+        vec4 Color = CalcPointLight(l.Base, Normal);                                        \n\
+        return Color * (1.0 - (1.0 - SpotFactor) * 1.0/(1.0 - l.Cutoff));                   \n\
+    }                                                                                       \n\
+    else {                                                                                  \n\
+        return vec4(0,0,0,0);                                                               \n\
+    }                                                                                       \n\
+}                                                                                           \n\
+                                                                                            \n\
+void main()                                                                                 \n\
+{                                                                                           \n\
+    vec3 Normal = normalize(Normal0);                                                       \n\
+    vec4 TotalLight = CalcDirectionalLight(Normal);                                         \n\
+                                                                                            \n\
+    for (int i = 0 ; i < gNumPointLights ; i++) {                                           \n\
+        TotalLight += CalcPointLight(gPointLights[i], Normal);                              \n\
+    }                                                                                       \n\
+                                                                                            \n\
+    for (int i = 0 ; i < gNumSpotLights ; i++) {                                            \n\
+        TotalLight += CalcSpotLight(gSpotLights[i], Normal);                                \n\
+    }                                                                                       \n\
+                                                                                            \n\
+    FragColor = texture2D(gSampler, TexCoord0.xy) * TotalLight;                             \n\
+}";
+```
+### Функция SetSpotLights обновляет программу шейдера массивом структур SpotLight. 
+```c++
+void LightingTechnique::SetSpotLights(unsigned int NumLights, const SpotLight* pLights)
+{
+    glUniform1i(m_numSpotLightsLocation, NumLights);
+ 
+    for (unsigned int i = 0 ; i < NumLights ; i++) {
+        glUniform3f(m_spotLightsLocation[i].Color, pLights[i].Color.x, pLights[i].Color.y, pLights[i].Color.z);
+        glUniform1f(m_spotLightsLocation[i].AmbientIntensity, pLights[i].AmbientIntensity);
+        glUniform1f(m_spotLightsLocation[i].DiffuseIntensity, pLights[i].DiffuseIntensity);
+        glUniform3f(m_spotLightsLocation[i].Position,  pLights[i].Position.x, pLights[i].Position.y, pLights[i].Position.z);
+        Vector3f Direction = pLights[i].Direction;
+        Direction.Normalize();
+        glUniform3f(m_spotLightsLocation[i].Direction, Direction.x, Direction.y, Direction.z);
+        glUniform1f(m_spotLightsLocation[i].Cutoff, cosf(ToRadian(pLights[i].Cutoff)));
+        glUniform1f(m_spotLightsLocation[i].Atten.Constant, pLights[i].Attenuation.Constant);
+        glUniform1f(m_spotLightsLocation[i].Atten.Linear,   pLights[i].Attenuation.Linear);
+        glUniform1f(m_spotLightsLocation[i].Atten.Exp,      pLights[i].Attenuation.Exp);
+    }
+}
+```
+### В цикле рендера
+```c++
+SpotLight sl[2];
+sl[0].DiffuseIntensity = 15.0f;
+sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
+sl[0].Position = my_Vector3f(0.0f, 0.0f, 0.0f);
+sl[0].Direction = my_Vector3f(sinf(Scale), 0.0f, cosf(Scale));
+sl[0].Attenuation.Linear = 0.1f;
+sl[0].Cutoff = 20.0f;
+
+sl[1].DiffuseIntensity = 5.0f;
+sl[1].Color = my_Vector3f(0.0f, 1.0f, 1.0f);
+sl[1].Position = pGameCamera->GetPos();
+sl[1].Direction = pGameCamera->GetTarget();
+sl[1].Attenuation.Linear = 0.1f;
+sl[1].Cutoff = 10.0f;
+
+m_pEffect->SetSpotLights(2, sl);
+```       
+## Результат
+![21](https://github.com/galeevlxix/KG1/raw/laba34/21.png)
