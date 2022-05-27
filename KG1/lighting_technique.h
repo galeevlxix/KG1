@@ -67,19 +67,18 @@ public:
     static const unsigned int MAX_SPOT_LIGHTS = 2;
 
     LightingTechnique();
+
     virtual bool Init();
 
     void SetWVP(const Matrix4f& WVP);
     void SetWorldMatrix(const Matrix4f& WVP);
     void SetTextureUnit(unsigned int TextureUnit);
     void SetDirectionalLight(const DirectionLight& Light);
-
+    void SetPointLights(unsigned int NumLights, const PointLight* pLights);
+    void SetSpotLights(unsigned int NumLights, const SpotLight* pLights);
     void SetEyeWorldPos(const my_Vector3f& EyeWorldPos);
     void SetMatSpecularIntensity(float Intensity);
     void SetMatSpecularPower(float Power);
-
-    void SetPointLights(unsigned int NumLights, const PointLight* pLights);
-    void SetSpotLights(unsigned int NumLights, const SpotLight* pLights);
 
 private:
     GLuint m_WVPLocation;
@@ -91,12 +90,15 @@ private:
     GLuint m_matSpecularPowerLocation;
     GLuint m_numPointLightsLocation;
     GLuint m_numSpotLightsLocation;
+
+
     struct {
         GLuint Color;
         GLuint AmbientIntensity;
         GLuint Direction;
         GLuint DiffuseIntensity;
     } m_dirLightLocation;
+
 
     struct {
         GLuint Color;
@@ -109,6 +111,8 @@ private:
             GLuint Exp;
         } Atten;
     } m_pointLightsLocation[MAX_POINT_LIGHTS];
+
+
     struct {
         GLuint Color;
         GLuint AmbientIntensity;

@@ -155,19 +155,19 @@ public:
         m_pEffect->SetPointLights(3, pl);*/
 
         SpotLight sl[2];
-        sl[0].DiffuseIntensity = 15.0f;
+        sl[0].DiffuseIntensity = 1.0f;
         sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
-        sl[0].Position = my_Vector3f(0.0f, 0.0f, 0.0f);
+        sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
         sl[0].Direction = my_Vector3f(sinf(Scale), 0.0f, cosf(Scale));
-        sl[0].Attenuation.Linear = 0.1f;
-        sl[0].Cutoff = 20.0f;
+        sl[0].Attenuation.Linear = 0.01f;
+        sl[0].Cutoff = 30.0f;
 
-        sl[1].DiffuseIntensity = 5.0f;
+        sl[1].DiffuseIntensity = 100.0f;
         sl[1].Color = my_Vector3f(0.0f, 1.0f, 1.0f);
         sl[1].Position = pGameCamera->GetPos();
         sl[1].Direction = pGameCamera->GetTarget();
-        sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 10.0f;
+        sl[1].Attenuation.Linear = 20.f;
+        sl[1].Cutoff = 30.0f;
 
         m_pEffect->SetSpotLights(2, sl);
 
