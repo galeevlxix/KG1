@@ -130,12 +130,12 @@ public:
         Scale += 0.001f;
 
         PointLight pl[3];
-        pl[0].DiffuseIntensity = 0.5f;
+        pl[0].DiffuseIntensity = 10.5f;
         pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
-        pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
+        pl[0].Position = my_Vector3f(0.0f, 10.0f, 10.0f);
         pl[0].Attenuation.Linear = 0.1f;
 
-        pl[1].DiffuseIntensity = 0.5f;
+       /* pl[1].DiffuseIntensity = 0.5f;
         pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
         pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
         pl[1].Attenuation.Linear = 0.1f;
@@ -143,10 +143,9 @@ public:
         pl[2].DiffuseIntensity = 0.5f;
         pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
         pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
-        pl[2].Attenuation.Linear = 0.1f;
+        pl[2].Attenuation.Linear = 0.1f;*/
 
-        m_pEffect->SetPointLights(3, pl);
-
+        m_pEffect->SetPointLights(1, pl);
 
         Pipeline p;
         
