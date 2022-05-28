@@ -12,36 +12,19 @@
 #include "glut_backend.h"
 #include "math3d.h"
 #include "Utils.h"
+#include "Object.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
 
 using namespace glm;
 
-struct Vertex
-{
-    my_Vector3f m_pos;
-    vec2 m_tex;
-    my_Vector3f m_normal;
-
-    Vertex() {}
-
-    Vertex(my_Vector3f pos, vec2 tex)
-    {
-        m_pos = pos;
-        m_tex = tex;
-        m_normal = my_Vector3f(0.0f, 0.0f, 0.0f);
-    }
-};
-
 class Main : public ICallbacks
 {
 public:
-
     Main()
     {
         pGameCamera = NULL;
-        pTexture = NULL;
         m_pEffect = NULL;
         Scale = 0.0f;
         directionalLight.Color = my_Vector3f(1.0f, 1.0f, 1.0f);
@@ -54,7 +37,6 @@ public:
     {
         delete m_pEffect;
         delete pGameCamera;
-        delete pTexture;
     }
 
     bool Init()
@@ -65,44 +47,9 @@ public:
 
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
-        unsigned int Indices[] = { // грани куба
-                        // ближн€€
-                        1, 3, 0,
-                        0, 3, 2,
-
-                        // дальн€€
-                        9, 11, 8,
-                        8, 11, 10,
-
-                        // лева€
-                        13, 15, 12,
-                        12, 15, 14,
-
-                        // права€
-                        5, 7, 4,
-                        4, 7, 6,
-
-                        // верхн€€
-                        17, 19, 16,
-                        16, 19, 18,
-
-                        // нижн€€
-                        22, 20, 23,
-                        23, 20, 21 };
-
-        unsigned int Indices2[] = { // пол
-                        1, 2, 3,
-                        1, 4, 3
-        };
-        
-        CreateIndexBuffer(Indices, sizeof(Indices));
-
-        CreateVertexBuffer(Indices, ARRAY_SIZE_IN_ELEMENTS(Indices));
-
-        CreateIndexBufferFloor(Indices2, sizeof(Indices2));
-
-        CreateVertexBufferFloor(Indices2, ARRAY_SIZE_IN_ELEMENTS(Indices2));
-
+        obj1.CreateBuffer();  
+        obj2.CreateBuffer();
+       
         m_pEffect = new LightingTechnique();
 
         if (!m_pEffect->Init())
@@ -114,12 +61,6 @@ public:
         m_pEffect->Enable();
 
         m_pEffect->SetTextureUnit(0);
-
-        pTexture = new Texture(GL_TEXTURE_2D, "C:\\tnt.png");
-
-        if (!pTexture->Load()) {
-            return false;
-        }
 
         return true;
     }
@@ -136,6 +77,13 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         Scale += 0.001f;
+
+
+        Pipeline p;
+        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
+        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
         /*PointLight pl[3];
         pl[0].DiffuseIntensity = 0.5f;
@@ -154,7 +102,7 @@ public:
         pl[2].Attenuation.Linear = 0.1f;
         m_pEffect->SetPointLights(3, pl);*/
 
-        SpotLight sl[2];
+        /*SpotLight sl[2];
         sl[0].DiffuseIntensity = 1.0f;
         sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
         sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
@@ -162,21 +110,17 @@ public:
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 30.0f;
 
-        sl[1].DiffuseIntensity = 100.0f;
-        sl[1].Color = my_Vector3f(0.0f, 1.0f, 1.0f);
+        sl[1].DiffuseIntensity = 1.0f;
+        sl[1].Color = my_Vector3f(1.0f, 1.0f, 1.0f);
         sl[1].Position = pGameCamera->GetPos();
         sl[1].Direction = pGameCamera->GetTarget();
-        sl[1].Attenuation.Linear = 20.f;
+        sl[1].Attenuation.Linear = 0.1f;
         sl[1].Cutoff = 30.0f;
 
-        m_pEffect->SetSpotLights(2, sl);
+        m_pEffect->SetSpotLights(2, sl);  */
 
-        Pipeline p;
-        
-        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        obj2.Render();
+        obj1.Render();        
 
         m_pEffect->SetWVP(p.GetWVPTrans());
         const Matrix4f& WorldTransformation = p.getTransformation();
@@ -186,25 +130,8 @@ public:
 
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
 
-        m_pEffect->SetMatSpecularIntensity(32.0f);
-        m_pEffect->SetMatSpecularPower(1);
-
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        pTexture->Bind(GL_TEXTURE0);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
+        m_pEffect->SetMatSpecularIntensity(10.0f);
+        m_pEffect->SetMatSpecularPower(3);
 
         glutSwapBuffers();
     }
@@ -218,7 +145,6 @@ public:
     {
         pGameCamera->OnKeyboard(Key);
     }
-
 
     virtual void KeyboardCB(unsigned char Key, int x, int y)
     {
@@ -251,109 +177,12 @@ public:
     }
 
 private:
-
-    void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount,
-        Vertex* pVertices, unsigned int VertexCount) {
-        for (unsigned int i = 0; i < IndexCount; i += 3) {
-            unsigned int Index0 = pIndices[i];
-            unsigned int Index1 = pIndices[i + 1];
-            unsigned int Index2 = pIndices[i + 2];
-            my_Vector3f v1 = pVertices[Index1].m_pos - pVertices[Index0].m_pos;
-            my_Vector3f v2 = pVertices[Index2].m_pos - pVertices[Index0].m_pos;
-            my_Vector3f Normal = v1.Cross(v2);
-            Normal.Normalize();
-
-            pVertices[Index0].m_normal = pVertices[Index0].m_normal + Normal;
-            pVertices[Index1].m_normal = pVertices[Index1].m_normal + Normal;
-            pVertices[Index2].m_normal = pVertices[Index2].m_normal + Normal;
-        }
-
-        for (unsigned int i = 0; i < VertexCount; i++) {
-            pVertices[i].m_normal.Normalize();
-        }
-    }
-
-    void CreateVertexBuffer(const unsigned int* pIndices, unsigned int IndexCount)
-    {
-        Vertex Vertices[24] = { //вершины куба
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),    // 2 2  нижн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),     // 3 3  нижн€€ права€ ближн€€
-
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
-
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
-
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
-
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
-
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
-        };
-
-        unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
-        CalcNormals(pIndices, IndexCount, Vertices, VertexCount);
-
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-    }
-
-    void CreateVertexBufferFloor(const unsigned int* pIndices, unsigned int IndexCount)
-    {
-        Vertex Floor[4] = {
-            //пол
-            Vertex(my_Vector3f(-20.0f, -2.0f, -20.0f), vec2(0.0f, 0.0f)),    // 2 20  нижн€€ лева€ ближн€€
-            Vertex(my_Vector3f(-20.0f, -2.0f, 20.0f), vec2(0.0f, 1.0f)),     // 3 21  нижн€€ права€ ближн€€
-            Vertex(my_Vector3f(20.0f, -2.0f, -20.0f), vec2(1.0f, 0.0f)),   // 6 22  нижн€€ лева€ дальн€€
-            Vertex(my_Vector3f(20.0f, -2.0f, 20.0f), vec2(1.0f, 1.0f))    // 7 23  нижн€€ права€ дальн€€
-        };
-        unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Floor);
-        CalcNormals(pIndices, IndexCount, Floor, VertexCount);
-
-        glGenBuffers(1, &VBOFloor);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOFloor);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Floor), Floor, GL_STATIC_DRAW);
-    }
-    void CreateIndexBuffer(const unsigned int* pIndices, unsigned int SizeInBytes)
-    {
-        glGenBuffers(1, &IBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeInBytes, pIndices, GL_STATIC_DRAW);
-    }
-
-    void CreateIndexBufferFloor(const unsigned int* pIndices, unsigned int SizeInBytes)
-    {
-        glGenBuffers(1, &IBOFloor);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOFloor);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeInBytes, pIndices, GL_STATIC_DRAW);
-    }
-
-    GLuint VBO;
-    GLuint VBOFloor;
-    GLuint IBO;
-    GLuint IBOFloor;
     LightingTechnique* m_pEffect;
-    Texture* pTexture;
     Camera* pGameCamera;
     float Scale;
     DirectionLight directionalLight;
+    Cube obj1;
+    Floor obj2;
 };
 
 

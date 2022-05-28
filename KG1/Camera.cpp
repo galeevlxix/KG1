@@ -109,6 +109,7 @@ bool Camera::OnKeyboard(int Key)
     }
     break;
 
+
     }
 
     return Ret;
@@ -125,8 +126,8 @@ void Camera::OnMouse(int x, int y)
 
     if(DeltaX == 0 && DeltaY == 0) return;
 
-    m_AngleH += (float)DeltaX / 20.0f;
-    m_AngleV += (float)DeltaY / 20.0f;
+    m_AngleH += (float)DeltaX / 2.0f;
+    m_AngleV += (float)DeltaY / 2.0f;
 
     Update();
 }
