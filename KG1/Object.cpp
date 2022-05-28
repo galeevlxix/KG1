@@ -2,64 +2,64 @@
 
 void Cube::CreateBuffer() {
     unsigned int Indices[] = { // грани куба
-                        // ближн€€
-                        1, 3, 0,
-                        0, 3, 2,
-
                         // дальн€€
                         9, 11, 8,
                         8, 11, 10,
 
-                        // лева€
-                        13, 15, 12,
-                        12, 15, 14,
+                        // ближн€€
+                        1, 3, 0,
+                        0, 3, 2,
 
                         // права€
                         5, 7, 4,
                         4, 7, 6,
 
-                        // верхн€€
-                        17, 19, 16,
-                        16, 19, 18,
+                        // лева€
+                        13, 15, 12,
+                        12, 15, 14,
 
                         // нижн€€
                         22, 20, 23,
-                        23, 20, 21 };
+                        23, 20, 21,
+
+                        // верхн€€
+                        17, 19, 16,
+                        16, 19, 18 };
 
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
     Vertex Vertices[24] = { //вершины куба
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),       // 2 2  нижн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),        // 3 3  нижн€€ права€ ближн€€
+        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
+        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
+        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),       // 2 2  нижн€€ лева€ ближн€€
+        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),        // 3 3  нижн€€ права€ ближн€€
 
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
+        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
+        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
+        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
+        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
 
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
+        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
+        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
+        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
+        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
 
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
+        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
+        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
+        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
+        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
 
-        Vertex(my_Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
-        Vertex(my_Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
+        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
+        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
+        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
+        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
 
-        Vertex(my_Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
-        Vertex(my_Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
-        Vertex(my_Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
+        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
+        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
+        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
+        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
     };
 
     unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
@@ -106,15 +106,15 @@ void Floor::CreateBuffer() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
     Vertex Vertices[8] = { 
-        Vertex(my_Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),    
-        Vertex(my_Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),    
-        Vertex(my_Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),   
-        Vertex(my_Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
+        Vertex(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
+        Vertex(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
+        Vertex(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
+        Vertex(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
 
-        Vertex(my_Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
-        Vertex(my_Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
-        Vertex(my_Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
-        Vertex(my_Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
+        Vertex(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
+        Vertex(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
+        Vertex(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
+        Vertex(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
     };
 
     unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
@@ -152,9 +152,9 @@ void Object :: CalcNormals(const unsigned int* pIndices, unsigned int IndexCount
         unsigned int Index0 = pIndices[i];
         unsigned int Index1 = pIndices[i + 1];
         unsigned int Index2 = pIndices[i + 2];
-        my_Vector3f v1 = pVertices[Index1].m_pos - pVertices[Index0].m_pos;
-        my_Vector3f v2 = pVertices[Index2].m_pos - pVertices[Index0].m_pos;
-        my_Vector3f Normal = v1.Cross(v2);
+        Vector3f v1 = pVertices[Index1].m_pos - pVertices[Index0].m_pos;
+        Vector3f v2 = pVertices[Index2].m_pos - pVertices[Index0].m_pos;
+        Vector3f Normal = v1.Cross(v2);
         Normal.Normalize();
 
         pVertices[Index0].m_normal = pVertices[Index0].m_normal + Normal;

@@ -1,15 +1,15 @@
 #include "math3d.h"
 
-my_Vector3f my_Vector3f::Cross(const my_Vector3f& v) const
+Vector3f Vector3f::Cross(const Vector3f& v) const
 {
     const float _x = y * v.z - z * v.y;
     const float _y = z * v.x - x * v.z;
     const float _z = x * v.y - y * v.x;
 
-    return my_Vector3f(_x, _y, _z);
+    return Vector3f(_x, _y, _z);
 }
 
-my_Vector3f& my_Vector3f::Normalize()
+Vector3f& Vector3f::Normalize()
 {
     const float Length = sqrtf(x * x + y * y + z * z);
 
@@ -20,7 +20,7 @@ my_Vector3f& my_Vector3f::Normalize()
     return *this;
 }
 
-void my_Vector3f::Rotate(float Angle, const my_Vector3f& Axe)
+void Vector3f::Rotate(float Angle, const Vector3f& Axe)
 {
     const float SinHalfAngle = sinf(ToRadian(Angle / 2));
     const float CosHalfAngle = cosf(ToRadian(Angle / 2));
@@ -83,14 +83,14 @@ void Matrix4f::InitTranslationTransform(float x, float y, float z)
 }
 
 
-void Matrix4f::InitCameraTransform(const my_Vector3f& Target, const my_Vector3f& Up)
+void Matrix4f::InitCameraTransform(const Vector3f& Target, const Vector3f& Up)
 {
-    my_Vector3f N = Target;
+    Vector3f N = Target;
     N.Normalize();
-    my_Vector3f U = Up;
+    Vector3f U = Up;
     U.Normalize();
     U = U.Cross(N);
-    my_Vector3f V = N.Cross(U);
+    Vector3f V = N.Cross(U);
 
     m[0][0] = U.x;   m[0][1] = U.y;   m[0][2] = U.z;   m[0][3] = 0.0f;
     m[1][0] = V.x;   m[1][1] = V.y;   m[1][2] = V.z;   m[1][3] = 0.0f;
@@ -147,7 +147,7 @@ Quaternion operator*(const Quaternion& l, const Quaternion& r)
     return ret;
 }
 
-Quaternion operator*(const Quaternion& q, const my_Vector3f& v)
+Quaternion operator*(const Quaternion& q, const Vector3f& v)
 {
     const float w = -(q.x * v.x) - (q.y * v.y) - (q.z * v.z);
     const float x = (q.w * v.x) + (q.y * v.z) - (q.z * v.y);

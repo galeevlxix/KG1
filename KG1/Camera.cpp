@@ -7,16 +7,16 @@ Camera::Camera(int WindowWidth, int WindowHeight)
 {
     m_windowWidth = WindowWidth;
     m_windowHeight = WindowHeight;
-    m_pos = my_Vector3f(0.0f, 0.0f, 0.0f);
-    m_target = my_Vector3f(0.0f, 0.0f, 1.0f);
+    m_pos = Vector3f(0.0f, 0.0f, 0.0f);
+    m_target = Vector3f(0.0f, 0.0f, 1.0f);
     m_target.Normalize();
-    m_up = my_Vector3f(0.0f, 1.0f, 0.0f);
+    m_up = Vector3f(0.0f, 1.0f, 0.0f);
 
     Init();
 }
 
 
-Camera::Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const my_Vector3f& Target, const my_Vector3f& Up)
+Camera::Camera(int WindowWidth, int WindowHeight, const Vector3f& Pos, const Vector3f& Target, const Vector3f& Up)
 {
     m_windowWidth = WindowWidth;
     m_windowHeight = WindowHeight;
@@ -34,7 +34,7 @@ Camera::Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const 
 
 void Camera::Init()
 {
-    my_Vector3f HTarget(m_target.x, 0.0, m_target.z);
+    Vector3f HTarget(m_target.x, 0.0, m_target.z);
     HTarget.Normalize();
 
     if (HTarget.z >= 0.0f)
@@ -91,7 +91,7 @@ bool Camera::OnKeyboard(int Key)
 
     case GLUT_KEY_LEFT:
     {
-        my_Vector3f Left = m_target.Cross(m_up);
+        Vector3f Left = m_target.Cross(m_up);
         Left.Normalize();
         Left = Left * STEP_SCALE;
         m_pos = m_pos + Left;
@@ -101,7 +101,7 @@ bool Camera::OnKeyboard(int Key)
 
     case GLUT_KEY_RIGHT:
     {
-        my_Vector3f Right = m_up.Cross(m_target);
+        Vector3f Right = m_up.Cross(m_target);
         Right.Normalize();
         Right = Right * STEP_SCALE;
         m_pos = m_pos + Right;
@@ -143,15 +143,15 @@ void Camera::OnRender()
 
 void Camera::Update()
 {
-    const my_Vector3f Vaxis(0.0f, 1.0f, 0.0f);
+    const Vector3f Vaxis(0.0f, 1.0f, 0.0f);
 
     // Rotate the view vector by the horizontal angle around the vertical axis
-    my_Vector3f View(1.0f, 0.0f, 0.0f);
+    Vector3f View(1.0f, 0.0f, 0.0f);
     View.Rotate(m_AngleH, Vaxis);
     View.Normalize();
 
     // Rotate the view vector by the vertical angle around the horizontal axis
-    my_Vector3f Haxis = Vaxis.Cross(View);
+    Vector3f Haxis = Vaxis.Cross(View);
     Haxis.Normalize();
     View.Rotate(m_AngleV, Haxis);
 

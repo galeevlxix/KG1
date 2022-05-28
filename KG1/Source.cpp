@@ -27,10 +27,10 @@ public:
         pGameCamera = NULL;
         m_pEffect = NULL;
         Scale = 0.0f;
-        directionalLight.Color = my_Vector3f(1.0f, 1.0f, 1.0f);
-        directionalLight.AmbientIntensity = 0.5f;
+        directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
+        directionalLight.AmbientIntensity = -0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
-        directionalLight.Direction = my_Vector3f(1.0f, 0.0, 0.0);
+        directionalLight.Direction = Vector3f(1.0f, 0.0, 0.0);
     }
 
     ~Main()
@@ -41,9 +41,9 @@ public:
 
     bool Init()
     {
-        my_Vector3f Pos(0.0f, 15.0f, -3.0f);
-        my_Vector3f Target(0.0f, 0.0f, 1.0f);
-        my_Vector3f Up(0.0, 1.0f, 0.0f);
+        Vector3f Pos(0.0f, 15.0f, -3.0f);
+        Vector3f Target(0.0f, 0.0f, 1.0f);
+        Vector3f Up(0.0, 1.0f, 0.0f);
 
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
@@ -82,44 +82,47 @@ public:
         Pipeline p;
         /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
         p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
-        p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 5.0f);
+        /*p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
+        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 0.0f);*/
+        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
         PointLight pl[3];
-        pl[0].DiffuseIntensity = 2.5f;
-        pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
-        pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
-        pl[0].Attenuation.Linear = 0.1f;
+        pl[2].DiffuseIntensity = 2.5f;
+        pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
+        pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
+        pl[2].Attenuation.Linear = 0.1f;
 
         pl[1].DiffuseIntensity = 2.5f;
-        pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
-        pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
+        pl[1].Color = Vector3f(0.0f, 1.0f, 0.0f);
+        pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 10, 2.0f, cosf(Scale + 2.1f) * 10);
         pl[1].Attenuation.Linear = 0.1f;
 
-        pl[2].DiffuseIntensity = 2.5f;
-        pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
-        pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
-        pl[2].Attenuation.Linear = 0.1f;
+        pl[0].DiffuseIntensity = 2.5f;
+        pl[0].Color = Vector3f(0.0f, 0.0f, 1.0f);
+        pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
+        pl[0].Attenuation.Linear = 0.1f;
+
         m_pEffect->SetPointLights(3, pl);
 
-        /*SpotLight sl[2];
-        sl[0].DiffuseIntensity = 1.0f;
-        sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
-        sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
-        sl[0].Direction = my_Vector3f(sinf(Scale), 0.0f, cosf(Scale));
+        SpotLight sl[2];
+        sl[0].DiffuseIntensity = 3.0f;
+        sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
+        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 0.0f);
         sl[0].Attenuation.Linear = 0.01f;
-        sl[0].Cutoff = 30.0f;
+        sl[0].Cutoff = 20.0f;
 
-        sl[1].DiffuseIntensity = 1.0f;
-        sl[1].Color = my_Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos();
-        sl[1].Direction = pGameCamera->GetTarget();
+        sl[1].DiffuseIntensity = 6.0f;
+        sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
+        sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
+        sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
         sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 30.0f;
+        sl[1].Cutoff = 5.0f;
 
-        m_pEffect->SetSpotLights(2, sl);*/
+        m_pEffect->SetSpotLights(2, sl);
 
         obj2.Render();
         obj1.Render();        
@@ -182,7 +185,7 @@ private:
     LightingTechnique* m_pEffect;
     Camera* pGameCamera;
     float Scale;
-    DirectionLight directionalLight;
+    DirectionalLight directionalLight;
     Cube obj1;
     Floor obj2;
 };
