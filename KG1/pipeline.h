@@ -1,17 +1,27 @@
 #ifndef PIPLINE_H
 #define PIPLINE_H
-#include "math3d.h"
 #include <cmath>
 #include "glm/glm.hpp"
 #include "glm/mat4x4.hpp"
 #include <glm/fwd.hpp>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
+#define M_PI       3.14159265358979323846
+
+#define ToRadian(x) ((x) * M_PI / 180.0f)
+#define ToDegree(x) ((x) * 180.0f / M_PI)
+
+using namespace glm;
 
 class Pipeline {
 public:
     Pipeline() :
-        mScale(my_Vector3f(1.0f, 1.0f, 1.0f)),
-        mWorldPos(my_Vector3f(0.0f, 0.0f, 0.0f)),
-        mRotateInfo(my_Vector3f(0.0f, 0.0f, 0.0f)){}
+        mScale(vec3(1.0f, 1.0f, 1.0f)),
+        mWorldPos(vec3(0.0f, 0.0f, 0.0f)),
+        mRotateInfo(vec3(0.0f, 0.0f, 0.0f)){}
 
     void Scale(float ScaleX, float ScaleY, float ScaleZ)
     {
@@ -37,37 +47,35 @@ public:
         mPersProj.height = height;
         mPersProj.zNear = zNear;
         mPersProj.zFar = zFar;
-    }
-    const Matrix4f& getTransformation();
+    }  
 
-    void SetCamera(const my_Vector3f Pos, const my_Vector3f Target, const my_Vector3f Up)
+    void SetCamera(const vec3 Pos, const vec3 Target, const vec3 Up)
     {
         m_camera.Pos = Pos;
         m_camera.Target = Target;
         m_camera.Up = Up;
     }
-
-    const Matrix4f& GetWVPTrans();
-
+    const mat4& getTransformation();
+    const mat4& GetWVPTrans();
 private:
-    my_Vector3f mScale;
-    my_Vector3f mWorldPos;
-    my_Vector3f mRotateInfo;
-    Matrix4f mTransformation;
-    Matrix4f m_WVPtransformation;
+    vec3 mScale;// Масштаб
+    vec3 mWorldPos;// Позиция
+    vec3 mRotateInfo;// Вращение
+    mat4 mTransformation;
+    mat4 m_WVPtransformation;
 
     struct {
-        float FOV;
-        float width;
-        float height;
-        float zNear;
-        float zFar;
+        float FOV;// Поле зрения (в градусах)
+        float width;// Ширина экрана
+        float height;// Высота экрана
+        float zNear;// Ближайшая глубина зрения
+        float zFar;// Дальнейшая глубина зрения
     } mPersProj;
 
     struct {
-        my_Vector3f Pos;
-        my_Vector3f Target;
-        my_Vector3f Up;
+        vec3 Pos;// Позиция камеры
+        vec3 Target;// Направление камеры
+        vec3 Up;// "Вверх" камеры
     } m_camera;
 };
 #endif

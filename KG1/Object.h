@@ -8,7 +8,6 @@
 #include "camera.h"
 #include "pipeline.h"
 #include "texture.h"
-#include "math3d.h"
 #include "Utils.h"
 
 #define WINDOW_WIDTH  1280
@@ -19,18 +18,18 @@ using namespace std;
 
 struct Vertex
 {
-    my_Vector3f m_pos;
+    vec3 m_pos;
     vec2 m_tex;
-    my_Vector3f m_normal;
+    vec3 m_normal;
     
 
     Vertex() {}
 
-    Vertex(my_Vector3f pos, vec2 tex)
+    Vertex(vec3 pos, vec2 tex)
     {
         m_pos = pos;
         m_tex = tex;
-        m_normal = my_Vector3f(0.0f, 0.0f, 0.0f);
+        m_normal = vec3(0.0f, 0.0f, 0.0f);
     }
 };
 

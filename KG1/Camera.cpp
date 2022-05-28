@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include <GL/freeglut.h>
+
 
 const static float STEP_SCALE = 0.1f;
 
@@ -7,26 +7,26 @@ Camera::Camera(int WindowWidth, int WindowHeight)
 {
     m_windowWidth = WindowWidth;
     m_windowHeight = WindowHeight;
-    m_pos = my_Vector3f(0.0f, 0.0f, 0.0f);
-    m_target = my_Vector3f(0.0f, 0.0f, 1.0f);
-    m_target.Normalize();
-    m_up = my_Vector3f(0.0f, 1.0f, 0.0f);
+    m_pos = vec3(0.0f, 0.0f, 0.0f);
+    m_target = vec3(0.0f, 0.0f, 1.0f);
+    normalize(m_target);
+    m_up = vec3(0.0f, 1.0f, 0.0f);
 
     Init();
 }
 
 
-Camera::Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const my_Vector3f& Target, const my_Vector3f& Up)
+Camera::Camera(int WindowWidth, int WindowHeight, const vec3& Pos, const vec3& Target, const vec3& Up)
 {
     m_windowWidth = WindowWidth;
     m_windowHeight = WindowHeight;
     m_pos = Pos;
 
     m_target = Target;
-    m_target.Normalize();
+    normalize(m_target);
 
     m_up = Up;
-    m_up.Normalize();
+    normalize(m_up);
 
     Init();
 }
@@ -34,8 +34,8 @@ Camera::Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const 
 
 void Camera::Init()
 {
-    my_Vector3f HTarget(m_target.x, 0.0, m_target.z);
-    HTarget.Normalize();
+    vec3 HTarget(m_target.x, 0.0, m_target.z);
+    normalize(HTarget);
 
     if (HTarget.z >= 0.0f)
     {
@@ -91,8 +91,7 @@ bool Camera::OnKeyboard(int Key)
 
     case GLUT_KEY_LEFT:
     {
-        my_Vector3f Left = m_target.Cross(m_up);
-        Left.Normalize();
+        vec3 Left = normalize(cross(m_target, m_up));
         Left = Left * STEP_SCALE;
         m_pos = m_pos + Left;
         Ret = true;
@@ -101,8 +100,7 @@ bool Camera::OnKeyboard(int Key)
 
     case GLUT_KEY_RIGHT:
     {
-        my_Vector3f Right = m_up.Cross(m_target);
-        Right.Normalize();
+        vec3 Right = normalize(cross(m_up, m_target));
         Right = Right * STEP_SCALE;
         m_pos = m_pos + Right;
         Ret = true;
@@ -143,21 +141,19 @@ void Camera::OnRender()
 
 void Camera::Update()
 {
-    const my_Vector3f Vaxis(0.0f, 1.0f, 0.0f);
+    const vec3 Vaxis(0.0f, 1.0f, 0.0f);
 
     // Rotate the view vector by the horizontal angle around the vertical axis
-    my_Vector3f View(1.0f, 0.0f, 0.0f);
-    View.Rotate(m_AngleH, Vaxis);
-    View.Normalize();
+    vec3 View(1.0f, 0.0f, 0.0f);
+
+    View = rotate(View, radians(m_AngleH), Vaxis);
+    View = normalize(View);
 
     // Rotate the view vector by the vertical angle around the horizontal axis
-    my_Vector3f Haxis = Vaxis.Cross(View);
-    Haxis.Normalize();
-    View.Rotate(m_AngleV, Haxis);
+    vec3 Haxis = normalize(cross(Vaxis,View));
+    View = rotate(View, radians(m_AngleV), Haxis);
 
-    m_target = View;
-    m_target.Normalize();
+    m_target = normalize(View);
 
-    m_up = m_target.Cross(Haxis);
-    m_up.Normalize();
+    m_up = normalize(cross(m_target, Haxis));
 }

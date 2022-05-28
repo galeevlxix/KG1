@@ -1,7 +1,16 @@
 #ifndef CAMERA_H
 #define	CAMERA_H
+#include <glm/glm.hpp>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#define M_PI       3.14159265358979323846
 
-#include "math3d.h"
+#define ToRadian(x) ((x) * M_PI / 180.0f)
+#define ToDegree(x) ((x) * 180.0f / M_PI)
+
+using namespace glm;
 
 class Camera
 {
@@ -9,7 +18,7 @@ public:
 
     Camera(int WindowWidth, int WindowHeight);
 
-    Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const my_Vector3f& Target, const my_Vector3f& Up);
+    Camera(int WindowWidth, int WindowHeight, const vec3& Pos, const vec3& Target, const vec3& Up);
 
     bool OnKeyboard(int Key);
 
@@ -17,17 +26,17 @@ public:
 
     void OnRender();
 
-    const my_Vector3f& GetPos() const
+    const vec3& GetPos() const
     {
         return m_pos;
     }
 
-    const my_Vector3f& GetTarget() const
+    const vec3& GetTarget() const
     {
         return m_target;
     }
 
-    const my_Vector3f& GetUp() const
+    const vec3& GetUp() const
     {
         return m_up;
     }
@@ -37,9 +46,9 @@ private:
     void Init();
     void Update();
 
-    my_Vector3f m_pos;
-    my_Vector3f m_target;
-    my_Vector3f m_up;
+    vec3 m_pos;
+    vec3 m_target;
+    vec3 m_up;
 
     int m_windowWidth;
     int m_windowHeight;
@@ -47,7 +56,7 @@ private:
     float m_AngleH;
     float m_AngleV;
 
-    my_Vector2i m_lastMousePos;
+    vec2 m_lastMousePos;
 };
 
 #endif	/* CAMERA_H */

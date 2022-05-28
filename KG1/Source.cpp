@@ -10,7 +10,6 @@
 #include "texture.h"
 #include "lighting_technique.h"
 #include "glut_backend.h"
-#include "math3d.h"
 #include "Utils.h"
 #include "Object.h"
 
@@ -27,10 +26,10 @@ public:
         pGameCamera = NULL;
         m_pEffect = NULL;
         Scale = 0.0f;
-        directionalLight.Color = my_Vector3f(1.0f, 1.0f, 1.0f);
+        directionalLight.Color = vec3(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = 0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
-        directionalLight.Direction = my_Vector3f(1.0f, 0.0, 0.0);
+        directionalLight.Direction = vec3(1.0f, 0.0, 0.0);
     }
 
     ~Main()
@@ -41,9 +40,9 @@ public:
 
     bool Init()
     {
-        my_Vector3f Pos(0.0f, 0.0f, -3.0f);
-        my_Vector3f Target(0.0f, 0.0f, 1.0f);
-        my_Vector3f Up(0.0, 1.0f, 0.0f);
+        vec3 Pos(0.0f, 0.0f, -3.0f);
+        vec3 Target(0.0f, 0.0f, 1.0f);
+        vec3 Up(0.0, 1.0f, 0.0f);
 
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
@@ -77,55 +76,53 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         Scale += 0.001f;
+        
+        PointLight pl[3];
+        pl[0].DiffuseIntensity = 0.5f;
+        pl[0].Color = vec3(1.0f, 0.0f, 0.0f);
+        pl[0].Position = vec3(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
+        pl[0].Attenuation.Linear = 0.1f;
 
+        pl[1].DiffuseIntensity = 0.5f;
+        pl[1].Color = vec3(0.0f, 1.0f, 0.0f);
+        pl[1].Position = vec3(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
+        pl[1].Attenuation.Linear = 0.1f;
+
+        pl[2].DiffuseIntensity = 0.5f;
+        pl[2].Color = glm::vec3(0.0f, 0.0f, 1.0f);
+        pl[2].Position = vec3(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
+        pl[2].Attenuation.Linear = 0.1f;
+
+        m_pEffect->SetPointLights(3, pl);
+
+        SpotLight sl [2];
+        sl[0].DiffuseIntensity = 15.0f;
+        sl[0].Color = vec3(1.0f, 1.0f, 0.7f);
+        sl[0].Position = vec3(-0.0f, -1.9f, -0.0f);
+        sl[0].Direction = vec3(sinf(Scale), 0.0f, cosf(Scale));
+        sl[0].Attenuation.Linear = 0.1f;
+        sl[0].Cutoff = 20.0f;
+
+        sl[1].DiffuseIntensity = 5.0f;
+        sl[1].Color = vec3(0.0f, 1.0f, 1.0f);
+        sl[1].Position = pGameCamera->GetPos();
+        sl[1].Direction = pGameCamera->GetTarget();
+        sl[1].Attenuation.Linear = 0.1f;
+        sl[1].Cutoff = 10.0f;
+
+        m_pEffect->SetSpotLights(2, sl);
 
         Pipeline p;
         p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
         p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-
-        /*PointLight pl[3];
-        pl[0].DiffuseIntensity = 0.5f;
-        pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
-        pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
-        pl[0].Attenuation.Linear = 0.1f;
-
-        pl[1].DiffuseIntensity = 0.5f;
-        pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
-        pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
-        pl[1].Attenuation.Linear = 0.1f;
-
-        pl[2].DiffuseIntensity = 0.5f;
-        pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
-        pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
-        pl[2].Attenuation.Linear = 0.1f;
-        m_pEffect->SetPointLights(3, pl);*/
-
-        SpotLight sl[2];
-        sl[0].DiffuseIntensity = 1.0f;
-        sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
-        sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
-        sl[0].Direction = my_Vector3f(sinf(Scale), 0.0f, cosf(Scale));
-        sl[0].Attenuation.Linear = 0.01f;
-        sl[0].Cutoff = 30.0f;
-
-        sl[1].DiffuseIntensity = 1.0f;
-        sl[1].Color = my_Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos();
-        sl[1].Direction = pGameCamera->GetTarget();
-        sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 30.0f;
-
-        m_pEffect->SetSpotLights(2, sl);
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.01f, 100.0f);
 
         obj2.Render();
         obj1.Render();        
 
         m_pEffect->SetWVP(p.GetWVPTrans());
-        const Matrix4f& WorldTransformation = p.getTransformation();
-
-        m_pEffect->SetWorldMatrix(WorldTransformation);
+        m_pEffect->SetWorldMatrix(p.getTransformation());
         m_pEffect->SetDirectionalLight(directionalLight);
 
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());

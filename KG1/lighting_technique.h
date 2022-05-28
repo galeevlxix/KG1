@@ -2,17 +2,20 @@
 #define LIGHTINGTECHNIQUE_H
 
 #include "technique.h"
-#include "math3d.h"
+#include <glm/glm.hpp>
+#include <math.h>
+
+using namespace glm;
 
 struct BaseLight
 {
-    my_Vector3f Color;
+    vec3 Color;
     float AmbientIntensity;
     float DiffuseIntensity;
 
     BaseLight()
     {
-        Color = my_Vector3f(0.0f, 0.0f, 0.0f);
+        Color = vec3(0.0f, 0.0f, 0.0f);
         AmbientIntensity = 0.0f;
         DiffuseIntensity = 0.0f;
     }
@@ -20,17 +23,17 @@ struct BaseLight
 
 struct DirectionLight : public BaseLight
 {
-    my_Vector3f Direction;
+    vec3 Direction;
 
     DirectionLight()
     {
-        Direction = my_Vector3f(0.0f, 0.0f, 0.0f);
+        Direction = vec3(0.0f, 0.0f, 0.0f);
     }
 };
 
 struct PointLight : public BaseLight
 {
-    my_Vector3f Position;
+    vec3 Position;
 
     struct
     {
@@ -41,7 +44,7 @@ struct PointLight : public BaseLight
 
     PointLight()
     {
-        Position = my_Vector3f(0.0f, 0.0f, 0.0f);
+        Position = vec3(0.0f, 0.0f, 0.0f);
         Attenuation.Constant = 1.0f;
         Attenuation.Linear = 0.0f;
         Attenuation.Exp = 0.0f;
@@ -50,12 +53,12 @@ struct PointLight : public BaseLight
 
 struct SpotLight : public PointLight
 {
-    my_Vector3f Direction;
+    vec3 Direction;
     float Cutoff;
 
     SpotLight()
     {
-        Direction = my_Vector3f(0.0f, 0.0f, 0.0f);
+        Direction = vec3(0.0f, 0.0f, 0.0f);
         Cutoff = 0.0f;
     }
 };
@@ -63,20 +66,20 @@ struct SpotLight : public PointLight
 class LightingTechnique : public Technique
 {
 public:
-    static const unsigned int MAX_POINT_LIGHTS = 2;
-    static const unsigned int MAX_SPOT_LIGHTS = 2;
+    static const unsigned int MAX_POINT_LIGHTS = 3;
+    static const unsigned int MAX_SPOT_LIGHTS = 3;
 
     LightingTechnique();
 
     virtual bool Init();
 
-    void SetWVP(const Matrix4f& WVP);
-    void SetWorldMatrix(const Matrix4f& WVP);
+    void SetWVP(const mat4& WVP);
+    void SetWorldMatrix(const mat4& WVP);
     void SetTextureUnit(unsigned int TextureUnit);
     void SetDirectionalLight(const DirectionLight& Light);
     void SetPointLights(unsigned int NumLights, const PointLight* pLights);
     void SetSpotLights(unsigned int NumLights, const SpotLight* pLights);
-    void SetEyeWorldPos(const my_Vector3f& EyeWorldPos);
+    void SetEyeWorldPos(const vec3& EyeWorldPos);
     void SetMatSpecularIntensity(float Intensity);
     void SetMatSpecularPower(float Power);
 

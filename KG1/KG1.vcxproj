@@ -148,7 +148,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glut_backend.cpp" />
     <ClCompile Include="lighting_technique.cpp" />
-    <ClCompile Include="math3d.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="glut_backend.h" />
     <ClInclude Include="lighting_technique.h" />
-    <ClInclude Include="math3d.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pipeline.h" />
     <ClInclude Include="Technique.h" />
@@ -168,7 +166,9 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FragmentShader.glsl" />
     <None Include="packages.config" />
+    <None Include="VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
