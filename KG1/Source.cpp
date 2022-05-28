@@ -41,7 +41,7 @@ public:
 
     bool Init()
     {
-        my_Vector3f Pos(0.0f, 0.0f, -3.0f);
+        my_Vector3f Pos(0.0f, 15.0f, -3.0f);
         my_Vector3f Target(0.0f, 0.0f, 1.0f);
         my_Vector3f Up(0.0, 1.0f, 0.0f);
 
@@ -80,29 +80,31 @@ public:
 
 
         Pipeline p;
-        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);
+        /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
+        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
+        p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
+        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 5.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
-        /*PointLight pl[3];
-        pl[0].DiffuseIntensity = 0.5f;
+        PointLight pl[3];
+        pl[0].DiffuseIntensity = 2.5f;
         pl[0].Color = my_Vector3f(1.0f, 0.0f, 0.0f);
         pl[0].Position = my_Vector3f(sinf(Scale) * 10, 1.0f, cosf(Scale) * 10);
         pl[0].Attenuation.Linear = 0.1f;
 
-        pl[1].DiffuseIntensity = 0.5f;
+        pl[1].DiffuseIntensity = 2.5f;
         pl[1].Color = my_Vector3f(0.0f, 1.0f, 0.0f);
         pl[1].Position = my_Vector3f(sinf(Scale + 2.1f) * 10, 1.0f, cosf(Scale + 2.1f) * 10);
         pl[1].Attenuation.Linear = 0.1f;
 
-        pl[2].DiffuseIntensity = 0.5f;
+        pl[2].DiffuseIntensity = 2.5f;
         pl[2].Color = my_Vector3f(0.0f, 0.0f, 1.0f);
         pl[2].Position = my_Vector3f(sinf(Scale + 4.2f) * 10, 1.0f, cosf(Scale + 4.2f) * 10);
         pl[2].Attenuation.Linear = 0.1f;
-        m_pEffect->SetPointLights(3, pl);*/
+        m_pEffect->SetPointLights(3, pl);
 
-        SpotLight sl[2];
+        /*SpotLight sl[2];
         sl[0].DiffuseIntensity = 1.0f;
         sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
         sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
@@ -117,7 +119,7 @@ public:
         sl[1].Attenuation.Linear = 0.1f;
         sl[1].Cutoff = 30.0f;
 
-        m_pEffect->SetSpotLights(2, sl);
+        m_pEffect->SetSpotLights(2, sl);*/
 
         obj2.Render();
         obj1.Render();        
@@ -131,7 +133,7 @@ public:
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
 
         m_pEffect->SetMatSpecularIntensity(5.0f);
-        m_pEffect->SetMatSpecularPower(3);
+        m_pEffect->SetMatSpecularPower(5);
 
         glutSwapBuffers();
     }

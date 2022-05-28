@@ -4,6 +4,8 @@
 #include "technique.h"
 #include "math3d.h"
 
+#define MAX_POINT_LIGHTS 3
+
 struct BaseLight
 {
     my_Vector3f Color;
@@ -48,37 +50,22 @@ struct PointLight : public BaseLight
     }
 };
 
-struct SpotLight : public PointLight
-{
-    my_Vector3f Direction;
-    float Cutoff;
-
-    SpotLight()
-    {
-        Direction = my_Vector3f(0.0f, 0.0f, 0.0f);
-        Cutoff = 0.0f;
-    }
-};
-
 class LightingTechnique : public Technique
 {
 public:
-    static const unsigned int MAX_POINT_LIGHTS = 2;
-    static const unsigned int MAX_SPOT_LIGHTS = 2;
-
     LightingTechnique();
-
     virtual bool Init();
 
     void SetWVP(const Matrix4f& WVP);
     void SetWorldMatrix(const Matrix4f& WVP);
     void SetTextureUnit(unsigned int TextureUnit);
     void SetDirectionalLight(const DirectionLight& Light);
-    void SetPointLights(unsigned int NumLights, const PointLight* pLights);
-    void SetSpotLights(unsigned int NumLights, const SpotLight* pLights);
+
     void SetEyeWorldPos(const my_Vector3f& EyeWorldPos);
     void SetMatSpecularIntensity(float Intensity);
     void SetMatSpecularPower(float Power);
+
+    void SetPointLights(unsigned int NumLights, const PointLight* pLights);
 
 private:
     GLuint m_WVPLocation;
@@ -89,8 +76,6 @@ private:
     GLuint m_matSpecularIntensityLocation;
     GLuint m_matSpecularPowerLocation;
     GLuint m_numPointLightsLocation;
-    GLuint m_numSpotLightsLocation;
-
 
     struct {
         GLuint Color;
@@ -98,7 +83,6 @@ private:
         GLuint Direction;
         GLuint DiffuseIntensity;
     } m_dirLightLocation;
-
 
     struct {
         GLuint Color;
@@ -111,23 +95,6 @@ private:
             GLuint Exp;
         } Atten;
     } m_pointLightsLocation[MAX_POINT_LIGHTS];
-
-
-    struct {
-        GLuint Color;
-        GLuint AmbientIntensity;
-        GLuint DiffuseIntensity;
-        GLuint Position;
-        GLuint Direction;
-        GLuint Cutoff;
-        struct {
-            GLuint Constant;
-            GLuint Linear;
-            GLuint Exp;
-        } Atten;
-    } m_spotLightsLocation[MAX_SPOT_LIGHTS];
 };
-
-
 
 #endif // LIGHTINGTECHNIQUE_H

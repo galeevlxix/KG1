@@ -95,18 +95,26 @@ void Cube::Render() {
 void Floor::CreateBuffer() {
     unsigned int Indices[] = {      // грани куба
                         0, 3, 1,
-                        2, 3, 0
+                        2, 3, 0,
+                        
+                        4, 7, 6,
+                        5, 7, 4
     };
 
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-    Vertex Vertices[4] = { 
-        Vertex(my_Vector3f(-10.0f, -1.0f, 10.0f), vec2(0.0f, 1.0f)),    
-        Vertex(my_Vector3f(10.0f, -1.0f, 10.0f), vec2(1.0f, 1.0f)),    
-        Vertex(my_Vector3f(-10.0f, -1.0f, -10.0f), vec2(0.0f, 0.0f)),   
-        Vertex(my_Vector3f(10.0f, -1.0f, -10.0f), vec2(1.0f, 0.0f)),   
+    Vertex Vertices[8] = { 
+        Vertex(my_Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),    
+        Vertex(my_Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),    
+        Vertex(my_Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),   
+        Vertex(my_Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
+
+        Vertex(my_Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
+        Vertex(my_Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
+        Vertex(my_Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
+        Vertex(my_Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
     };
 
     unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
@@ -132,7 +140,7 @@ void Floor::Render() {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     texture->Bind(GL_TEXTURE0);
-    glDrawElements(GL_TRIANGLES, 8, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
