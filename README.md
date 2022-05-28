@@ -1154,4 +1154,4 @@ sl[1].Cutoff = 10.0f;
 m_pEffect->SetSpotLights(2, sl);
 ```       
 ## Результат
-![21](https://github.com/galeevlxix/KG1/raw/laba34/21.png)
+![21new](https://github.com/galeevlxix/KG1/raw/laba34/21new.png)
