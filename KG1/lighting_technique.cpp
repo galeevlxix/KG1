@@ -308,13 +308,13 @@ void LightingTechnique::SetDirectionalLight(const DirectionLight& Light)
 {
     glUniform3f(m_dirLightLocation.Color, Light.Color.x, Light.Color.y, Light.Color.z);
     glUniform1f(m_dirLightLocation.AmbientIntensity, Light.AmbientIntensity);
-    my_Vector3f Direction = Light.Direction;
+    Vector3f Direction = Light.Direction;
     Direction.Normalize();
     glUniform3f(m_dirLightLocation.Direction, Direction.x, Direction.y, Direction.z);
     glUniform1f(m_dirLightLocation.DiffuseIntensity, Light.DiffuseIntensity);
 }
 
-void LightingTechnique::SetEyeWorldPos(const my_Vector3f& EyeWorldPos)
+void LightingTechnique::SetEyeWorldPos(const Vector3f& EyeWorldPos)
 {
     glUniform3f(m_eyeWorldPosLocation, EyeWorldPos.x, EyeWorldPos.y, EyeWorldPos.z);
 }
@@ -353,7 +353,7 @@ void LightingTechnique::SetSpotLights(unsigned int NumLights, const SpotLight* p
         glUniform1f(m_spotLightsLocation[i].AmbientIntensity, pLights[i].AmbientIntensity);
         glUniform1f(m_spotLightsLocation[i].DiffuseIntensity, pLights[i].DiffuseIntensity);
         glUniform3f(m_spotLightsLocation[i].Position, pLights[i].Position.x, pLights[i].Position.y, pLights[i].Position.z);
-        my_Vector3f Direction = pLights[i].Direction;
+        Vector3f Direction = pLights[i].Direction;
         Direction.Normalize();
         glUniform3f(m_spotLightsLocation[i].Direction, Direction.x, Direction.y, Direction.z);
         glUniform1f(m_spotLightsLocation[i].Cutoff, cosf(ToRadian(pLights[i].Cutoff)));

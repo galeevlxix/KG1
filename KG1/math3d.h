@@ -13,31 +13,31 @@ struct my_Vector2i
     float y;
 };
 
-struct my_Vector3f
+struct Vector3f
 {
     float x;
     float y;
     float z;
 
-    my_Vector3f()
+    Vector3f()
     {
         x = 0;
         y = 0;
         z = 0;
     }
 
-    my_Vector3f(float _x, float _y, float _z)
+    Vector3f(float _x, float _y, float _z)
     {
         x = _x;
         y = _y;
         z = _z;
     }
 
-    my_Vector3f Cross(const my_Vector3f& v) const;
+    Vector3f Cross(const Vector3f& v) const;
 
-    my_Vector3f& Normalize();
+    Vector3f& Normalize();
 
-    void Rotate(float Angle, const my_Vector3f& Axis);
+    void Rotate(float Angle, const Vector3f& Axis);
 
     void Print() const
     {
@@ -45,27 +45,27 @@ struct my_Vector3f
     }
 };
 
-inline my_Vector3f operator+(const my_Vector3f& l, const my_Vector3f& r)
+inline Vector3f operator+(const Vector3f& l, const Vector3f& r)
 {
-    my_Vector3f Ret(l.x + r.x,
+    Vector3f Ret(l.x + r.x,
         l.y + r.y,
         l.z + r.z);
 
     return Ret;
 }
 
-inline my_Vector3f operator-(const my_Vector3f& l, const my_Vector3f& r)
+inline Vector3f operator-(const Vector3f& l, const Vector3f& r)
 {
-    my_Vector3f Ret(l.x - r.x,
+    Vector3f Ret(l.x - r.x,
         l.y - r.y,
         l.z - r.z);
 
     return Ret;
 }
 
-inline my_Vector3f operator*(const my_Vector3f& l, float f)
+inline Vector3f operator*(const Vector3f& l, float f)
 {
-    my_Vector3f Ret(l.x * f,
+    Vector3f Ret(l.x * f,
         l.y * f,
         l.z * f);
 
@@ -109,7 +109,7 @@ public:
     void InitScaleTransform(float ScaleX, float ScaleY, float ScaleZ);
     void InitRotateTransform(float RotateX, float RotateY, float RotateZ);
     void InitTranslationTransform(float x, float y, float z);
-    void InitCameraTransform(const my_Vector3f& Target, const my_Vector3f& Up);
+    void InitCameraTransform(const Vector3f& Target, const Vector3f& Up);
     void InitPersProjTransform(float FOV, float Width, float Height, float zNear, float zFar);
 };
 
@@ -126,6 +126,6 @@ struct Quaternion
 
 Quaternion operator*(const Quaternion& l, const Quaternion& r);
 
-Quaternion operator*(const Quaternion& q, const my_Vector3f& v);
+Quaternion operator*(const Quaternion& q, const Vector3f& v);
 
 #endif

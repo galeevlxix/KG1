@@ -9,7 +9,7 @@ public:
 
     Camera(int WindowWidth, int WindowHeight);
 
-    Camera(int WindowWidth, int WindowHeight, const my_Vector3f& Pos, const my_Vector3f& Target, const my_Vector3f& Up);
+    Camera(int WindowWidth, int WindowHeight, const Vector3f& Pos, const Vector3f& Target, const Vector3f& Up);
 
     bool OnKeyboard(int Key);
 
@@ -17,17 +17,17 @@ public:
 
     void OnRender();
 
-    const my_Vector3f& GetPos() const
+    const Vector3f& GetPos() const
     {
         return m_pos;
     }
 
-    const my_Vector3f& GetTarget() const
+    const Vector3f& GetTarget() const
     {
         return m_target;
     }
 
-    const my_Vector3f& GetUp() const
+    const Vector3f& GetUp() const
     {
         return m_up;
     }
@@ -37,9 +37,9 @@ private:
     void Init();
     void Update();
 
-    my_Vector3f m_pos;
-    my_Vector3f m_target;
-    my_Vector3f m_up;
+    Vector3f m_pos;
+    Vector3f m_target;
+    Vector3f m_up;
 
     int m_windowWidth;
     int m_windowHeight;

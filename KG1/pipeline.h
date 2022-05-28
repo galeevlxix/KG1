@@ -9,9 +9,9 @@
 class Pipeline {
 public:
     Pipeline() :
-        mScale(my_Vector3f(1.0f, 1.0f, 1.0f)),
-        mWorldPos(my_Vector3f(0.0f, 0.0f, 0.0f)),
-        mRotateInfo(my_Vector3f(0.0f, 0.0f, 0.0f)){}
+        mScale(Vector3f(1.0f, 1.0f, 1.0f)),
+        mWorldPos(Vector3f(0.0f, 0.0f, 0.0f)),
+        mRotateInfo(Vector3f(0.0f, 0.0f, 0.0f)){}
 
     void Scale(float ScaleX, float ScaleY, float ScaleZ)
     {
@@ -40,7 +40,7 @@ public:
     }
     const Matrix4f& getTransformation();
 
-    void SetCamera(const my_Vector3f Pos, const my_Vector3f Target, const my_Vector3f Up)
+    void SetCamera(const Vector3f Pos, const Vector3f Target, const Vector3f Up)
     {
         m_camera.Pos = Pos;
         m_camera.Target = Target;
@@ -50,9 +50,9 @@ public:
     const Matrix4f& GetWVPTrans();
 
 private:
-    my_Vector3f mScale;
-    my_Vector3f mWorldPos;
-    my_Vector3f mRotateInfo;
+    Vector3f mScale;
+    Vector3f mWorldPos;
+    Vector3f mRotateInfo;
     Matrix4f mTransformation;
     Matrix4f m_WVPtransformation;
 
@@ -65,9 +65,9 @@ private:
     } mPersProj;
 
     struct {
-        my_Vector3f Pos;
-        my_Vector3f Target;
-        my_Vector3f Up;
+        Vector3f Pos;
+        Vector3f Target;
+        Vector3f Up;
     } m_camera;
 };
 #endif

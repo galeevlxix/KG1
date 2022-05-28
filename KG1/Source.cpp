@@ -27,10 +27,10 @@ public:
         pGameCamera = NULL;
         m_pEffect = NULL;
         Scale = 0.0f;
-        directionalLight.Color = my_Vector3f(1.0f, 1.0f, 1.0f);
+        directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = 0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
-        directionalLight.Direction = my_Vector3f(1.0f, 0.0, 0.0);
+        directionalLight.Direction = Vector3f(1.0f, 0.0, 0.0);
     }
 
     ~Main()
@@ -41,9 +41,9 @@ public:
 
     bool Init()
     {
-        my_Vector3f Pos(0.0f, 0.0f, -3.0f);
-        my_Vector3f Target(0.0f, 0.0f, 1.0f);
-        my_Vector3f Up(0.0, 1.0f, 0.0f);
+        Vector3f Pos(0.0f, 0.0f, -3.0f);
+        Vector3f Target(0.0f, 0.0f, 1.0f);
+        Vector3f Up(0.0, 1.0f, 0.0f);
 
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
@@ -104,14 +104,14 @@ public:
 
         SpotLight sl[2];
         sl[0].DiffuseIntensity = 1.0f;
-        sl[0].Color = my_Vector3f(1.0f, 1.0f, 0.7f);
-        sl[0].Position = my_Vector3f(0.0f, 5.0f, 0.0f);
-        sl[0].Direction = my_Vector3f(sinf(Scale), 0.0f, cosf(Scale));
+        sl[0].Color = Vector3f(1.0f, 1.0f, 0.7f);
+        sl[0].Position = Vector3f(0.0f, 5.0f, 0.0f);
+        sl[0].Direction = Vector3f(sinf(Scale), 0.0f, cosf(Scale));
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 30.0f;
 
         sl[1].DiffuseIntensity = 1.0f;
-        sl[1].Color = my_Vector3f(1.0f, 1.0f, 1.0f);
+        sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
         sl[1].Position = pGameCamera->GetPos();
         sl[1].Direction = pGameCamera->GetTarget();
         sl[1].Attenuation.Linear = 0.1f;

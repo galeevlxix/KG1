@@ -19,18 +19,18 @@ using namespace std;
 
 struct Vertex
 {
-    my_Vector3f m_pos;
+    Vector3f m_pos;
     vec2 m_tex;
-    my_Vector3f m_normal;
+    Vector3f m_normal;
     
 
     Vertex() {}
 
-    Vertex(my_Vector3f pos, vec2 tex)
+    Vertex(Vector3f pos, vec2 tex)
     {
         m_pos = pos;
         m_tex = tex;
-        m_normal = my_Vector3f(0.0f, 0.0f, 0.0f);
+        m_normal = Vector3f(0.0f, 0.0f, 0.0f);
     }
 };
 
