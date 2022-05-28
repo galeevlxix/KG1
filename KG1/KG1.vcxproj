@@ -149,8 +149,11 @@
     <ClCompile Include="glut_backend.cpp" />
     <ClCompile Include="lighting_technique.cpp" />
     <ClCompile Include="math3d.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="pipeline.cpp" />
+    <ClCompile Include="ShadowMapFBO.cpp" />
+    <ClCompile Include="ShadowMapTechnique.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -161,8 +164,11 @@
     <ClInclude Include="glut_backend.h" />
     <ClInclude Include="lighting_technique.h" />
     <ClInclude Include="math3d.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pipeline.h" />
+    <ClInclude Include="ShadowMapFBO.h" />
+    <ClInclude Include="ShadowMapTechnique.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />

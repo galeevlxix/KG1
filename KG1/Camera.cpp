@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <GL/freeglut.h>
 
-const static float STEP_SCALE = 0.1f;
+const static float STEP_SCALE = 0.2f;
 
 Camera::Camera(int WindowWidth, int WindowHeight)
 {

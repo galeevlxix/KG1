@@ -13,6 +13,8 @@
 #include "math3d.h"
 #include "Utils.h"
 #include "Object.h"
+#include "ShadowMapFBO.h"
+#include "ShadowMapTechnique.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -26,6 +28,7 @@ public:
     {
         pGameCamera = NULL;
         m_pEffect = NULL;
+        shadowMapTechnique = NULL;
         Scale = 0.0f;
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = -0.5f;
@@ -41,6 +44,10 @@ public:
 
     bool Init()
     {
+        if (!shadowMapFBO.Init(WINDOW_WIDTH, WINDOW_HEIGHT)) {
+            return false;
+        }
+
         Vector3f Pos(0.0f, 15.0f, -3.0f);
         Vector3f Target(0.0f, 0.0f, 1.0f);
         Vector3f Up(0.0, 1.0f, 0.0f);
@@ -58,6 +65,15 @@ public:
             return false;
         }
 
+        shadowMapTechnique = new ShadowMapTechnique();
+
+        if (!shadowMapTechnique->Init()) {
+            printf("Error initializing the shadow map technique\n");
+            return false;
+        }
+
+        shadowMapTechnique->Enable();
+
         m_pEffect->Enable();
 
         m_pEffect->SetTextureUnit(0);
@@ -70,75 +86,128 @@ public:
         GLUTBackendRun(this);
     }
 
+
+    //virtual void RenderSceneCB()
+    //{
+    //    pGameCamera->OnRender();
+    //    glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
+    //    glClear(GL_COLOR_BUFFER_BIT);
+
+    //    Scale += 0.001f;
+
+
+    //    Pipeline p;
+    //    /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
+    //    p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
+    //    /*p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
+    //    p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 0.0f);*/
+    //    p.Rotate(0.0f, 0.0f, 0.0f);
+    //    p.WorldPos(0.0f, 10.0f, 0.0f);
+    //    p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+    //    p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+
+    //    PointLight pl[3];
+    //    pl[2].DiffuseIntensity = 2.5f;
+    //    pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
+    //    pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
+    //    pl[2].Attenuation.Linear = 0.1f;
+
+    //    pl[1].DiffuseIntensity = 2.5f;
+    //    pl[1].Color = Vector3f(0.0f, 1.0f, 0.0f);
+    //    pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 10, 2.0f, cosf(Scale + 2.1f) * 10);
+    //    pl[1].Attenuation.Linear = 0.1f;
+
+    //    pl[0].DiffuseIntensity = 2.5f;
+    //    pl[0].Color = Vector3f(0.0f, 0.0f, 1.0f);
+    //    pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
+    //    pl[0].Attenuation.Linear = 0.1f;
+
+    //    SpotLight sl[2];
+    //    sl[0].DiffuseIntensity = 3.0f;
+    //    sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
+    //    sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
+    //    sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 0.0f);
+    //    sl[0].Attenuation.Linear = 0.01f;
+    //    sl[0].Cutoff = 20.0f;
+
+    //    sl[1].DiffuseIntensity = 6.0f;
+    //    sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
+    //    sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
+    //    sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
+    //    sl[1].Attenuation.Linear = 0.1f;
+    //    sl[1].Cutoff = 5.0f;
+
+    //    m_pEffect->SetSpotLights(2, sl);
+
+    //    obj2.Render();
+    //    obj1.Render();        
+
+    //    m_pEffect->SetWVP(p.GetWVPTrans());
+    //    const Matrix4f& WorldTransformation = p.getTransformation();
+
+    //    m_pEffect->SetWorldMatrix(WorldTransformation);
+    //    m_pEffect->SetDirectionalLight(directionalLight);
+
+    //    m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
+
+    //    m_pEffect->SetMatSpecularIntensity(5.0f);
+    //    m_pEffect->SetMatSpecularPower(5);
+
+    //    glutSwapBuffers();
+    //}
+
     virtual void RenderSceneCB()
     {
         pGameCamera->OnRender();
-        glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         Scale += 0.001f;
 
-
-        Pipeline p;
-        /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
-        /*p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 0.0f);*/
-        p.Rotate(0.0f, 0.0f, 0.0f);
-        p.WorldPos(0.0f, 10.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-
-        PointLight pl[3];
-        pl[2].DiffuseIntensity = 2.5f;
-        pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
-        pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
-        pl[2].Attenuation.Linear = 0.1f;
-
-        pl[1].DiffuseIntensity = 2.5f;
-        pl[1].Color = Vector3f(0.0f, 1.0f, 0.0f);
-        pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 10, 2.0f, cosf(Scale + 2.1f) * 10);
-        pl[1].Attenuation.Linear = 0.1f;
-
-        pl[0].DiffuseIntensity = 2.5f;
-        pl[0].Color = Vector3f(0.0f, 0.0f, 1.0f);
-        pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
-        pl[0].Attenuation.Linear = 0.1f;
-
-        m_pEffect->SetPointLights(3, pl);
-
-        SpotLight sl[2];
+        SpotLight sl[1];
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
         sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
         sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 0.0f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
+        m_pEffect->SetSpotLights(1, sl);
 
-        sl[1].DiffuseIntensity = 6.0f;
-        sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
-        sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
-        sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 5.0f;
-
-        m_pEffect->SetSpotLights(2, sl);
-
-        obj2.Render();
-        obj1.Render();        
-
-        m_pEffect->SetWVP(p.GetWVPTrans());
-        const Matrix4f& WorldTransformation = p.getTransformation();
-
-        m_pEffect->SetWorldMatrix(WorldTransformation);
-        m_pEffect->SetDirectionalLight(directionalLight);
-
-        m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
-
-        m_pEffect->SetMatSpecularIntensity(5.0f);
-        m_pEffect->SetMatSpecularPower(5);
+        ShadowMapPass();
+        RenderPass();
 
         glutSwapBuffers();
+    }
+
+    virtual void ShadowMapPass()
+    {
+        shadowMapFBO.BindForWriting();
+
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        Pipeline p;
+        p.Scale(0.2f, 0.2f, 0.2f);
+        p.Rotate(0.0f, Scale, 0.0f);
+        p.WorldPos(0.0f, 0.0f, 5.0f);
+        p.SetCamera(m_spotLight.Position, m_spotLight.Direction, Vector3f(0.0f, 1.0f, 0.0f));
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 50.0f);
+        shadowMapTechnique->SetWVP(p.GetWVPTrans());
+        obj2.Render();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    virtual void RenderPass()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        shadowMapTechnique->SetTextureUnit(0);
+        shadowMapFBO.BindForReading(GL_TEXTURE0);
+
+        Pipeline p;
+        p.Scale(5.0f, 5.0f, 5.0f);
+        p.WorldPos(0.0f, 0.0f, 10.0f);
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 50.0f);
+        shadowMapTechnique->SetWVP(p.GetWVPTrans());
+        obj1.Render();
     }
 
     virtual void IdleCB()
@@ -183,11 +252,14 @@ public:
 
 private:
     LightingTechnique* m_pEffect;
+    ShadowMapFBO shadowMapFBO;
+    ShadowMapTechnique* shadowMapTechnique;
     Camera* pGameCamera;
     float Scale;
     DirectionalLight directionalLight;
     Cube obj1;
     Floor obj2;
+    SpotLight m_spotLight;
 };
 
 
