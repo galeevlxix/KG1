@@ -61,7 +61,7 @@ static void RenderSceneCB()
 
     glDisableVertexAttribArray(0);
 
-    glutSwapBuffers();
+    glutSwapBuffers();//
 }
 
 static void InitializeGlutCallbacks()
