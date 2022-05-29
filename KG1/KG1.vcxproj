@@ -151,6 +151,7 @@
     <ClCompile Include="math3d.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="pipeline.cpp" />
+    <ClCompile Include="ShadowMapFBO.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="math3d.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pipeline.h" />
+    <ClInclude Include="ShadowMapFBO.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />

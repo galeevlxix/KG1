@@ -77,19 +77,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         Scale += 0.001f;
-
-
-        Pipeline p;
-        /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
-        /*p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 0.0f);*/
-        p.Rotate(0.0f, 0.0f, 0.0f);
-        p.WorldPos(0.0f, 10.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-
-        PointLight pl[3];
+        
         pl[2].DiffuseIntensity = 2.5f;
         pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
         pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
@@ -107,7 +95,6 @@ public:
 
         m_pEffect->SetPointLights(3, pl);
 
-        SpotLight sl[2];
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
         sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
@@ -124,21 +111,40 @@ public:
 
         m_pEffect->SetSpotLights(2, sl);
 
-        obj2.Render();
-        obj1.Render();        
-
+        Pipeline p;
+        
+        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.WorldPos(0.0f, 10.0f, 0.0f);
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);       
+      
         m_pEffect->SetWVP(p.GetWVPTrans());
-        const Matrix4f& WorldTransformation = p.getTransformation();
-
-        m_pEffect->SetWorldMatrix(WorldTransformation);
+        m_pEffect->SetWorldMatrix(p.getTransformation());
         m_pEffect->SetDirectionalLight(directionalLight);
-
+        p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
+        
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
-
         m_pEffect->SetMatSpecularIntensity(5.0f);
         m_pEffect->SetMatSpecularPower(5);
+        
+        obj2.Render();
+        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale*2));
+        p.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 10.0f, 0.0f);
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
+        m_pEffect->SetWVP(p.GetWVPTrans());
+        m_pEffect->SetWorldMatrix(p.getTransformation());
+        p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
+
+        obj1.Render();
+        
         glutSwapBuffers();
+    }
+
+    void SetLights(int Sc) {
+        
+        
     }
 
     virtual void IdleCB()
@@ -188,6 +194,9 @@ private:
     DirectionalLight directionalLight;
     Cube obj1;
     Floor obj2;
+
+    PointLight pl[3];
+    SpotLight sl[2];
 };
 
 
