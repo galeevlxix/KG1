@@ -152,6 +152,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="ShadowMapFBO.cpp" />
+    <ClCompile Include="ShadowMapTechnique.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="pipeline.h" />
     <ClInclude Include="ShadowMapFBO.h" />
+    <ClInclude Include="ShadowMapTechnique.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />

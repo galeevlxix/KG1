@@ -10,7 +10,7 @@ class Technique
 {
 public:
     Technique();
-    ~Technique();
+    virtual ~Technique();
     virtual bool Init();
     void Enable();
 
