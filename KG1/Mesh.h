@@ -4,6 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/material.h>
 
 #include <map>
 #include <vector>
@@ -44,6 +45,7 @@ public:
         Clear();
     };
     bool LoadMesh(const std::string& Filename);
+
     void Render();
 
 private:

@@ -132,6 +132,16 @@ bool Mesh::InitMaterials(const aiScene* pScene, const std::string& Filename)
 
     bool Ret = true;
 
+    std::vector<std::string> texturefies;
+
+    texturefies.push_back("C:\\scene\\LP_blinn2_BaseColor.png");
+    texturefies.push_back("C:\\scene\\text2_Base_color.png");
+    texturefies.push_back("C:\\scene\\text3_Base_color.png");
+    texturefies.push_back("C:\\scene\\text4_Base_color.png");
+    texturefies.push_back("C:\\scene\\text5_Base_color.png");
+    texturefies.push_back("C:\\scene\\TexturesCom_Pavement_RoadOld_Yellow_1K_alb.png");
+    
+
     // Инициализируем материал
     for (unsigned int i = 0; i < pScene->mNumMaterials; i++) {
         const aiMaterial* pMaterial = pScene->mMaterials[i];
@@ -143,7 +153,7 @@ bool Mesh::InitMaterials(const aiScene* pScene, const std::string& Filename)
             if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &Path,
                 NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
                 std::string FullPath = Dir + "/" + Path.data;
-                m_Textures[i] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+                m_Textures[i] = new Texture(GL_TEXTURE_2D, texturefies[i]);
 
                 if (!m_Textures[i]->Load()) {
                     printf("Error loading texture '%s'\n", FullPath.c_str());
@@ -155,10 +165,11 @@ bool Mesh::InitMaterials(const aiScene* pScene, const std::string& Filename)
         }
 
         // Загружаем белую текстуру если модель не имеет собственной
-        if (!m_Textures[i]) {
-            m_Textures[i] = new Texture(GL_TEXTURE_2D, "../Content/white.png");
+        // В этом уроке данный фукнционал - рудимент
+        /*if (!m_Textures[i]){
+            m_Textures[i] = new Texture(GL_TEXTURE_2D, "./white.png");
             Ret = m_Textures[i]->Load();
-        }
+        }*/
     }
 
     return Ret;

@@ -13,8 +13,6 @@
 #include "math3d.h"
 #include "Utils.h"
 #include "Object.h"
-#include "ShadowMapFBO.h"
-#include "ShadowMapTechnique.h"
 #include "Mesh.h"
 
 #define WINDOW_WIDTH  1280
@@ -29,17 +27,21 @@ public:
     {
         pGameCamera = NULL;
         m_pEffect = NULL;
+        m_pMesh = NULL;
+        floor = NULL;
         Scale = 0.0f;
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
-        directionalLight.AmbientIntensity = -0.5f;
+        directionalLight.AmbientIntensity = 0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
         directionalLight.Direction = Vector3f(1.0f, 0.0, 0.0);
     }
 
     ~Main()
     {
-        delete m_pEffect;
-        delete pGameCamera;
+        SAFE_DELETE(m_pEffect);
+        SAFE_DELETE(pGameCamera);
+        SAFE_DELETE(m_pMesh);
+        SAFE_DELETE(floor);
     }
 
     bool Init()
@@ -49,6 +51,9 @@ public:
         Vector3f Up(0.0, 1.0f, 0.0f);
 
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
+
+        obj1.CreateBuffer();
+        obj2.CreateBuffer();
 
         m_pEffect = new LightingTechnique();
 
@@ -62,7 +67,9 @@ public:
 
         m_pEffect->SetTextureUnit(0);
 
-        return true;
+        m_pMesh = new Mesh();
+
+        return m_pMesh->LoadMesh("C:\\scene\\scene.fbx");
     }
 
     void Run()
@@ -82,48 +89,20 @@ public:
         Pipeline p;
         /*p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale));
         p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) - 2.0f, 5.0f);*/
-        /*p.Rotate(20 * cos(Scale), Scale * 50, 20 * sinf(Scale));
-        p.WorldPos(sinf(Scale), sinf(Scale) * sinf(Scale) + 10.0f, 0.0f);*/
-        p.Rotate(0.0f, 0.0f, 0.0f);
-        p.WorldPos(0.0f, 10.0f, 0.0f);
+        p.Rotate(-90.0f, 0.0f, 0.0f);
+
+        p.WorldPos(0.0f, 5.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-
-        PointLight pl[3];
-        pl[2].DiffuseIntensity = 2.5f;
-        pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
-        pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
-        pl[2].Attenuation.Linear = 0.1f;
-
-        pl[1].DiffuseIntensity = 2.5f;
-        pl[1].Color = Vector3f(0.0f, 1.0f, 0.0f);
-        pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 10, 2.0f, cosf(Scale + 2.1f) * 10);
-        pl[1].Attenuation.Linear = 0.1f;
-
-        pl[0].DiffuseIntensity = 2.5f;
-        pl[0].Color = Vector3f(0.0f, 0.0f, 1.0f);
-        pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
-        pl[0].Attenuation.Linear = 0.1f;
         
-        SpotLight sl[2];
-        sl[0].DiffuseIntensity = 3.0f;
+        sl[0].DiffuseIntensity = 40.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
-        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 0.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) , 0.0f, 9.0f);
+        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, -1.1f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
-
-        sl[1].DiffuseIntensity = 6.0f;
-        sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
-        sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
-        sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 5.0f;
         
-        m_pEffect->SetSpotLights(2, sl);
-
-        obj2.Render();
-        obj1.Render();        
+        m_pEffect->SetSpotLights(1, sl);
         
         m_pEffect->SetWVP(p.GetWVPTrans());
         const Matrix4f& WorldTransformation = p.getTransformation();
@@ -133,8 +112,10 @@ public:
         
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
 
-        m_pEffect->SetMatSpecularIntensity(5.0f);
-        m_pEffect->SetMatSpecularPower(5);
+        m_pEffect->SetMatSpecularIntensity(10.0f);
+        m_pEffect->SetMatSpecularPower(30);
+
+        m_pMesh->Render();
 
         glutSwapBuffers();
     }
@@ -235,15 +216,16 @@ public:
 
 private:
     LightingTechnique* m_pEffect;
-    ShadowMapFBO shadowMapFBO;
-    ShadowMapTechnique* shadowMapTechnique;
     Camera* pGameCamera;
     float Scale;
     DirectionalLight directionalLight;
     Cube obj1;
     Floor obj2;
-    SpotLight m_spotLight;
-    Mesh m_pMesh;
+    SpotLight sl[1];
+    Mesh* m_pMesh;
+    Mesh* floor;
+
+
 };
 
 
