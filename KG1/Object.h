@@ -17,16 +17,16 @@
 using namespace glm;
 using namespace std;
 
-struct Vertex
+struct Vertex2
 {
     Vector3f m_pos;
     vec2 m_tex;
     Vector3f m_normal;
     
 
-    Vertex() {}
+    Vertex2() {}
 
-    Vertex(Vector3f pos, vec2 tex)
+    Vertex2(Vector3f pos, vec2 tex)
     {
         m_pos = pos;
         m_tex = tex;
@@ -41,7 +41,7 @@ public:
     GLuint IBO;
     Texture* texture;
 
-    void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount);
+    void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex2* pVertices, unsigned int VertexCount);
 };
 
 class Cube : public Object {
