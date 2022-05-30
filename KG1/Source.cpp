@@ -114,8 +114,8 @@ public:
         sl[0].AmbientIntensity = 0.1f;
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 0.0f);
-        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 0.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 2.0f, 3.0f);
+        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, -1.0f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
 
@@ -156,15 +156,14 @@ public:
 
         Pipeline p;
         p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.Rotate(180.0f, 0.0f, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-
       
         m_pEffect->SetWVP(p.GetWVPTrans());
         m_pEffect->SetWorldMatrix(p.getTransformation());
         p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        m_pEffect->SetLightWVP(p.GetWVPTrans());        
+        m_pEffect->SetLightWVP(p.GetWVPTrans());
         m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
         
         obj2.Render();
