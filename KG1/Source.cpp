@@ -15,6 +15,7 @@
 #include "Object.h"
 #include "ShadowMapFBO.h"
 #include "ShadowMapTechnique.h"
+#include "SkyBox.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -35,6 +36,12 @@ public:
         directionalLight.AmbientIntensity = -0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
         directionalLight.Direction = Vector3f(1.0f, 0.0, 0.0);
+
+        m_persProjInfo.FOV = 60.0f;
+        m_persProjInfo.Height = WINDOW_HEIGHT;
+        m_persProjInfo.Width = WINDOW_WIDTH;
+        m_persProjInfo.zNear = 1.0f;
+        m_persProjInfo.zFar = 100.0f;
     }
 
     ~Main()
@@ -72,6 +79,19 @@ public:
         m_pShadowMapEffect = new ShadowMapTechnique();
         if (!m_pShadowMapEffect->Init()) {
             printf("Error initializing the shadow map technique\n");
+            return false;
+        }
+
+        m_pSkyBox = new SkyBox(pGameCamera, m_persProjInfo);
+
+        if (!m_pSkyBox->Init(".",
+            "C:\\skybox\\right.png",
+            "C:\\skybox\\left.png",
+            "C:\\skybox\\up.png",
+            "C:\\skybox\\down.png",
+            "C:\\skybox\\back.png",
+            "C:\\skybox\\front.png"
+            )) {
             return false;
         }
 
@@ -142,9 +162,9 @@ public:
         Pipeline p1;        
         p1.Scale(0.1f, 0.1f, 0.1f);
         p1.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
-        p1.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
+        p1.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 10.0f, 0.0f);
         p1.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        p1.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        p1.PerspectiveProj(m_persProjInfo);
         m_pShadowMapEffect->SetWVP(p1.GetWVPTrans());
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -155,7 +175,7 @@ public:
         m_shadowMapFBO.BindForReading(GL_TEXTURE0);
 
         Pipeline p;
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        p.PerspectiveProj(m_persProjInfo);
         p.Rotate(0.0f, 0.0f, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
@@ -169,9 +189,9 @@ public:
         
         obj2.Render();
         ///////////////////////////
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        p.PerspectiveProj(m_persProjInfo);
         p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
-        p.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
+        p.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
 
         m_pEffect->SetWVP(p.GetWVPTrans());
@@ -180,6 +200,8 @@ public:
         m_pEffect->SetLightWVP(p.GetWVPTrans());
 
         obj1.Render();
+
+        m_pSkyBox->Render();
         
         glutSwapBuffers();
     }
@@ -232,9 +254,11 @@ private:
     DirectionalLight directionalLight;
     Cube obj1;
     Floor obj2;
+    PersProjInfo m_persProjInfo;
 
     PointLight pl[3];
     SpotLight sl[2];
+    SkyBox* m_pSkyBox;
 
     ShadowMapFBO m_shadowMapFBO;
     ShadowMapTechnique* m_pShadowMapEffect;

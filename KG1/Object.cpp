@@ -30,36 +30,36 @@ void Cube::CreateBuffer() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-    Vertex Vertices[24] = { //вершины куба
-        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
-        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
-        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),       // 2 2  нижн€€ лева€ ближн€€
-        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),        // 3 3  нижн€€ права€ ближн€€
+    Vertex2 Vertices[24] = { //вершины куба
+        Vertex2(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),     // 0 0  верхн€€ лева€ ближн€€ 
+        Vertex2(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),      // 1 1  верхн€€ права€ ближн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),       // 2 2  нижн€€ лева€ ближн€€
+        Vertex2(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),        // 3 3  нижн€€ права€ ближн€€
 
-        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
-        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
-        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
-        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
+        Vertex2(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.499f, 0.6666f)),      // 1 4  верхн€€ права€ ближн€€
+        Vertex2(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),     // 5 5  верхн€€ права€ дальн€€
+        Vertex2(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.499f, 1.0f)),     // 3 6  нижн€€ права€ ближн€€
+        Vertex2(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),    // 7 7  нижн€€ права€ дальн€€
 
-        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
-        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
-        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
-        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
+        Vertex2(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),     // 5 8  верхн€€ права€ дальн€€
+        Vertex2(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.251f, 0.6666f)),    // 4 9  верхн€€ лева€ дальн€€
+        Vertex2(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),    // 7 10  нижн€€ права€ дальн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.251f, 1.0f)),   // 6 11  нижн€€ лева€ дальн€€
 
-        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
-        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
-        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
-        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
+        Vertex2(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.499f, 0.6666f)),    // 4 12  верхн€€ лева€ дальн€€
+        Vertex2(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.251f, 0.6666f)),     // 0 13  верхн€€ лева€ ближн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, -1.0f), vec2(0.499f, 1.0f)),   // 6 14  нижн€€ лева€ дальн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, 1.0f), vec2(0.251f, 1.0f)),    // 2 15  нижн€€ лева€ ближн€€
 
-        Vertex(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
-        Vertex(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
-        Vertex(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
-        Vertex(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
+        Vertex2(Vector3f(-1.0f, 1.0f, -1.0f), vec2(0.25f, 0.3333f)),    // 4 16  верхн€€ лева€ дальн€€
+        Vertex2(Vector3f(1.0f, 1.0f, -1.0f), vec2(0.5f, 0.3333f)),     // 5 17  верхн€€ права€ дальн€€
+        Vertex2(Vector3f(-1.0f, 1.0f, 1.0f), vec2(0.25f, 0.6666f)),     // 0 18  верхн€€ лева€ ближн€€
+        Vertex2(Vector3f(1.0f, 1.0f, 1.0f), vec2(0.5f, 0.6666f)),      // 1 19  верхн€€ права€ ближн€€
 
-        Vertex(Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
-        Vertex(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
-        Vertex(Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
-        Vertex(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, 1.0f), vec2(1.0f, 0.3333f)),    // 2 20  нижн€€ лева€ ближн€€
+        Vertex2(Vector3f(1.0f, -1.0f, 1.0f), vec2(0.75f, 0.3333f)),     // 3 21  нижн€€ права€ ближн€€
+        Vertex2(Vector3f(-1.0f, -1.0f, -1.0f), vec2(1.0f, 0.6666f)),   // 6 22  нижн€€ лева€ дальн€€
+        Vertex2(Vector3f(1.0f, -1.0f, -1.0f), vec2(0.75f, 0.6666f)),    // 7 23  нижн€€ права€ дальн€€
     };
 
     unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
@@ -79,9 +79,9 @@ void Cube::Render() {
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2), 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2), (const GLvoid*)12);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2), (const GLvoid*)20);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     texture->Bind(GL_TEXTURE0);
@@ -105,16 +105,16 @@ void Floor::CreateBuffer() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-    Vertex Vertices[8] = { 
-        Vertex(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
-        Vertex(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
-        Vertex(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
-        Vertex(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
+    Vertex2 Vertices[8] = {
+        Vertex2(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
+        Vertex2(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
+        Vertex2(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
+        Vertex2(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
 
-        Vertex(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
-        Vertex(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
-        Vertex(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
-        Vertex(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
+        Vertex2(Vector3f(-15.0f, -1.0f, 15.0f), vec2(0.0f, 1.0f)),
+        Vertex2(Vector3f(15.0f, -1.0f, 15.0f), vec2(1.0f, 1.0f)),
+        Vertex2(Vector3f(-15.0f, -1.0f, -15.0f), vec2(0.0f, 0.0f)),
+        Vertex2(Vector3f(15.0f, -1.0f, -15.0f), vec2(1.0f, 0.0f)),
     };
 
     unsigned int VertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
@@ -134,9 +134,9 @@ void Floor::Render() {
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2), 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2), (const GLvoid*)12);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2), (const GLvoid*)20);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     texture->Bind(GL_TEXTURE0);
@@ -147,7 +147,7 @@ void Floor::Render() {
     glDisableVertexAttribArray(2);
 }
 
-void Object :: CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount) {
+void Object :: CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex2* pVertices, unsigned int VertexCount) {
     for (unsigned int i = 0; i < IndexCount; i += 3) {
         unsigned int Index0 = pIndices[i];
         unsigned int Index1 = pIndices[i + 1];

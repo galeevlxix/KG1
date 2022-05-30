@@ -31,12 +31,8 @@ public:
         mRotateInfo.y = RotateY;
         mRotateInfo.z = RotateZ;
     }
-    void PerspectiveProj(float FOV, float width, float height, float zNear, float zFar) {
-        mPersProj.FOV = FOV;
-        mPersProj.width = width;
-        mPersProj.height = height;
-        mPersProj.zNear = zNear;
-        mPersProj.zFar = zFar;
+    void PerspectiveProj(const PersProjInfo& p) {
+        m_persProjInfo = p;
     }
     const Matrix4f& getTransformation();
 
@@ -55,6 +51,7 @@ private:
     Vector3f mRotateInfo;
     Matrix4f mTransformation;
     Matrix4f m_WVPtransformation;
+    PersProjInfo m_persProjInfo;
 
     struct {
         float FOV;
