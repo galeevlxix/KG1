@@ -174,32 +174,6 @@ public:
         m_pEffect->Enable();
         m_shadowMapFBO.BindForReading(GL_TEXTURE0);
 
-        Pipeline p;
-        p.PerspectiveProj(m_persProjInfo);
-        p.Rotate(0.0f, 0.0f, 0.0f);
-        p.WorldPos(0.0f, 10.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-
-      
-        m_pEffect->SetWVP(p.GetWVPTrans());
-        m_pEffect->SetWorldMatrix(p.getTransformation());
-        p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        m_pEffect->SetLightWVP(p.GetWVPTrans());        
-        m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
-        
-        obj2.Render();
-        ///////////////////////////
-        p.PerspectiveProj(m_persProjInfo);
-        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
-        p.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 10.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-
-        m_pEffect->SetWVP(p.GetWVPTrans());
-        m_pEffect->SetWorldMatrix(p.getTransformation());
-        p.SetCamera(sl[0].Position , sl[0].Direction , Vector3f(0.0f, 1.0f, 0.0f));
-        m_pEffect->SetLightWVP(p.GetWVPTrans());
-
-        obj1.Render();
 
         m_pSkyBox->Render();
         
