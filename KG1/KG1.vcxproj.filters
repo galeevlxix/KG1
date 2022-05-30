@@ -39,10 +39,10 @@
     <ClCompile Include="lighting_technique.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
+    <ClCompile Include="ShadowMapFBO.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMapFBO.cpp">
+    <ClCompile Include="Mesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,10 +74,13 @@
     <ClInclude Include="Utils.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
+    <ClInclude Include="ShadowMapFBO.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMapFBO.h">
+    <ClInclude Include="Mesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="engine_common.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
