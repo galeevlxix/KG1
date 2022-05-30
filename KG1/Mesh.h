@@ -1,46 +1,51 @@
 #ifndef MESH_H
-#define MESH_H
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#define	MESH_H
 
 #include <map>
 #include <vector>
 #include <GL/glew.h>
-
-#include "Utils.h"
-#include "math3d.h"
-#include "Texture.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "glm/glm.hpp"
 #include "glm/mat4x4.hpp"
 #include <glm/fwd.hpp>
+
 using namespace glm;
+
+#include "Utils.h"
+#include "math3d.h"
+#include "texture.h"
 
 struct Vertex
 {
     Vector3f m_pos;
     vec2 m_tex;
     Vector3f m_normal;
+    Vector3f m_tangent;
 
     Vertex() {}
 
-    Vertex(const Vector3f& pos, const vec2& tex, const Vector3f& normal)
+    Vertex(const Vector3f& pos, const vec2& tex, const Vector3f& normal, const Vector3f& Tangent)
     {
         m_pos = pos;
         m_tex = tex;
         m_normal = normal;
+        m_tangent = Tangent;
+
     }
 };
+
 
 class Mesh
 {
 public:
-    Mesh() {};
-    ~Mesh() {
-        Clear();
-    };
+    Mesh();
+
+    ~Mesh();
+
     bool LoadMesh(const std::string& Filename);
+
     void Render();
 
 private:
@@ -53,6 +58,7 @@ private:
 
     struct MeshEntry {
         MeshEntry();
+
         ~MeshEntry();
 
         bool Init(const std::vector<Vertex>& Vertices,
@@ -60,7 +66,6 @@ private:
 
         GLuint VB;
         GLuint IB;
-
         unsigned int NumIndices;
         unsigned int MaterialIndex;
     };
@@ -69,4 +74,5 @@ private:
     std::vector<Texture*> m_Textures;
 };
 
-#endif /* MESH_H */
+
+#endif	/* MESH_H */
