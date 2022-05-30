@@ -24,5 +24,6 @@ private:
     typedef std::list<GLuint> ShaderObjList;
     ShaderObjList m_shaderObjList;
 };
+#define INVALID_UNIFORM_LOCATION 0xFFFFFFFF
 
 #endif /* TEXHNIQUE_H */

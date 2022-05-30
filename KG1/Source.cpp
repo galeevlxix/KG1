@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+#include "engine_common.h"
 #include "pipeline.h"
 #include "camera.h"
 #include "texture.h"
@@ -15,6 +16,7 @@
 #include "Object.h"
 #include "ShadowMapFBO.h"
 #include "ShadowMapTechnique.h"
+#include "Mesh.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -27,21 +29,37 @@ public:
     Main()
     {
         pGameCamera = NULL;
-        m_pEffect = NULL;
+        m_pLightingTechnique = NULL;
+        wall = NULL;
+        m_pTexture = NULL;
+        m_pNormalMap = NULL;
+        m_pTrivialNormalMap = NULL;
+
         m_pShadowMapEffect = NULL;
         Scale = 0.0f;
 
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
-        directionalLight.AmbientIntensity = -0.5f;
+        directionalLight.AmbientIntensity = 0.5f;
         directionalLight.DiffuseIntensity = 0.75f;
         directionalLight.Direction = Vector3f(1.0f, 0.0, 0.0);
+
+        m_persProjInfo.FOV = 60.0f;
+        m_persProjInfo.Height = WINDOW_HEIGHT;
+        m_persProjInfo.Width = WINDOW_WIDTH;
+        m_persProjInfo.zNear = 1.0f;
+        m_persProjInfo.zFar = 100.0f;
+
+        m_bumpMapEnabled = true;
     }
 
     ~Main()
     {
-        delete m_pEffect;
-        delete pGameCamera;
-        SAFE_DELETE(m_pShadowMapEffect);
+        SAFE_DELETE(m_pLightingTechnique);
+        SAFE_DELETE(pGameCamera);
+        SAFE_DELETE(wall);
+        SAFE_DELETE(m_pTexture);
+        SAFE_DELETE(m_pNormalMap);
+        SAFE_DELETE(m_pTrivialNormalMap);
     }
 
     bool Init()
@@ -57,17 +75,18 @@ public:
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
        
-        m_pEffect = new LightingTechnique();
+        m_pLightingTechnique = new LightingTechnique();
 
-        if (!m_pEffect->Init())
+        if (!m_pLightingTechnique->Init())
         {
             printf("Error initializing the lighting technique\n");
             return false;
         }
 
-        m_pEffect->Enable();
-        m_pEffect->SetTextureUnit(0);
-        m_pEffect->SetShadowMapTextureUnit(1);
+        m_pLightingTechnique->Enable();
+        m_pLightingTechnique->SetDirectionalLight(directionalLight);
+        m_pLightingTechnique->SetColorTextureUnit(0);
+        m_pLightingTechnique->SetNormalMapTextureUnit(2);
 
         m_pShadowMapEffect = new ShadowMapTechnique();
         if (!m_pShadowMapEffect->Init()) {
@@ -75,8 +94,31 @@ public:
             return false;
         }
 
-        obj1.CreateBuffer();
-        obj2.CreateBuffer();
+        wall = new Mesh();
+
+        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_sphere.fbx")) {
+            return false;
+        }
+
+        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_basecolor.png");
+
+        if (!m_pTexture->Load()) {
+            return false;
+        }
+
+        m_pTexture->Bind(COLOR_TEXTURE_UNIT);
+
+        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_normal.png");
+
+        if (!m_pNormalMap->Load()) {
+            return false;
+        }
+
+        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_height.jpg");
+
+        if (!m_pTrivialNormalMap->Load()) {
+            return false;
+        }
 
         return true;
     }
@@ -94,7 +136,7 @@ public:
 
         Scale += 0.001f;
         /////////////////////////////////////////////// LIGHT
-        pl[2].DiffuseIntensity = 2.5f;
+        /*pl[2].DiffuseIntensity = 2.5f;
         pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
         pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
         pl[2].Attenuation.Linear = 0.1f;
@@ -109,7 +151,7 @@ public:
         pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
         pl[0].Attenuation.Linear = 0.1f;
 
-        m_pEffect->SetPointLights(3, pl);
+        m_pLightingTechnique->SetPointLights(3, pl);*/
 
         sl[0].AmbientIntensity = 0.1f;
         sl[0].DiffuseIntensity = 3.0f;
@@ -122,16 +164,16 @@ public:
         sl[1].AmbientIntensity = 0.1f;
         sl[1].DiffuseIntensity = 6.0f;
         sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
-        sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
+        sl[1].Position = pGameCamera->GetPos() /** Vector3f(1.0f, -1.0f, 1.0f)*/;
+        sl[1].Direction = pGameCamera->GetTarget() /** Vector3f(0.5f, -2.0f, 0.5f)*/;
         sl[1].Attenuation.Linear = 0.1f;
         sl[1].Cutoff = 5.0f;
 
-        m_pEffect->SetSpotLights(2, sl);
+        m_pLightingTechnique->SetSpotLights(2, sl);
 
-        m_pEffect->SetDirectionalLight(directionalLight);
-        m_pEffect->SetMatSpecularIntensity(5.0f);
-        m_pEffect->SetMatSpecularPower(5);
+        m_pLightingTechnique->SetDirectionalLight(directionalLight);
+        m_pLightingTechnique->SetMatSpecularIntensity(5.0f);
+        m_pLightingTechnique->SetMatSpecularPower(5);
         /////////////////////////////////////////////// ShadowMapPass
 
         m_shadowMapFBO.BindForWriting();
@@ -144,41 +186,43 @@ public:
         p1.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
         p1.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
         p1.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        p1.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        p1.PerspectiveProj(m_persProjInfo);
+
         m_pShadowMapEffect->SetWVP(p1.GetWVPTrans());
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         /////////////////////////////////////////////// RenderPass
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_pEffect->Enable();
+        m_pLightingTechnique->Enable();
         m_shadowMapFBO.BindForReading(GL_TEXTURE0);
 
         Pipeline p;
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
+        
         p.Rotate(0.0f, 0.0f, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-      
-        m_pEffect->SetWVP(p.GetWVPTrans());
-        m_pEffect->SetWorldMatrix(p.getTransformation());
+        p.PerspectiveProj(m_persProjInfo);
+
+        m_pTexture->Bind(COLOR_TEXTURE_UNIT);
+
+        if (m_bumpMapEnabled)
+        {
+            m_pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
+        }
+        else
+        {
+            m_pTrivialNormalMap->Bind(NORMAL_TEXTURE_UNIT);
+        }
+
+        m_pLightingTechnique->SetWVP(p.GetWVPTrans());
+        m_pLightingTechnique->SetWorldMatrix(p.getTransformation());
         p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        m_pEffect->SetLightWVP(p.GetWVPTrans());
-        m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
+        m_pLightingTechnique->SetEyeWorldPos(pGameCamera->GetPos());
+
+        wall->Render();
         
-        obj2.Render();
         ///////////////////////////
-        p.PerspectiveProj(60.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
-        p.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
-        p.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-
-        m_pEffect->SetWVP(p.GetWVPTrans());
-        m_pEffect->SetWorldMatrix(p.getTransformation());
-        p.SetCamera(sl[0].Position , sl[0].Direction , Vector3f(0.0f, 1.0f, 0.0f));
-        m_pEffect->SetLightWVP(p.GetWVPTrans());
-
-        obj1.Render();
         
         glutSwapBuffers();
     }
@@ -225,18 +269,25 @@ public:
     }
 
 private:
-    LightingTechnique* m_pEffect;
+    LightingTechnique* m_pLightingTechnique;
     Camera* pGameCamera;
     float Scale;
     DirectionalLight directionalLight;
-    Cube obj1;
-    Floor obj2;
+
+    Mesh* wall;
+
+    Texture* m_pTexture;
+    Texture* m_pNormalMap;
+    Texture* m_pTrivialNormalMap;
 
     PointLight pl[3];
     SpotLight sl[2];
 
     ShadowMapFBO m_shadowMapFBO;
     ShadowMapTechnique* m_pShadowMapEffect;
+
+    PersProjInfo m_persProjInfo;
+    bool m_bumpMapEnabled;
 };
 
 

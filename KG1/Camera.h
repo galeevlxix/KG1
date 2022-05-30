@@ -2,6 +2,11 @@
 #define	CAMERA_H
 
 #include "math3d.h"
+#include "glm/glm.hpp"
+#include "glm/mat4x4.hpp"
+#include <glm/fwd.hpp>
+
+using namespace glm;
 
 class Camera
 {
@@ -47,7 +52,7 @@ private:
     float m_AngleH;
     float m_AngleV;
 
-    my_Vector2i m_lastMousePos;
+    vec2 m_lastMousePos;
 };
 
 #endif	/* CAMERA_H */
