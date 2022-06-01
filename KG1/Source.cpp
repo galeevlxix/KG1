@@ -44,6 +44,8 @@ public:
         m_persProjInfo.Width = WINDOW_WIDTH;
         m_persProjInfo.zNear = 1.0f;
         m_persProjInfo.zFar = 100.0f;
+
+        m_bumpMapEnabled = false;
     }
 
     ~Main()
@@ -92,13 +94,13 @@ public:
 
         m_pTexture->Bind(COLOR_TEXTURE_UNIT);
 
-        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_normal.png");
+        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Pinkish_N_0.png");
 
         if (!m_pNormalMap->Load()) {
             return false;
         }
 
-        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_normal.png");
+        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\white.png");
 
         if (!m_pTrivialNormalMap->Load()) {
             return false;
@@ -125,17 +127,17 @@ public:
 
         pl[2].DiffuseIntensity = 2.5f;
         pl[2].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        pl[2].Position = Vector3f(sinf(Scale) * 10, 15.0f, cosf(Scale) * 10);
+        pl[2].Position = Vector3f(sinf(Scale) * 10, 18.0f, cosf(Scale) * 10);
         pl[2].Attenuation.Linear = 0.1f;
 
         pl[1].DiffuseIntensity = 2.5f;
         pl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 15, 10.0f, cosf(Scale + 2.1f) * 10);
+        pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 15, 18.0f, cosf(Scale + 2.1f) * 10);
         pl[1].Attenuation.Linear = 0.1f;
 
         pl[0].DiffuseIntensity = 2.5f;
         pl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 15.0f, cosf(Scale + 4.2f) * 10);
+        pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 18.0f, cosf(Scale + 4.2f) * 10);
         pl[0].Attenuation.Linear = 0.1f;
 
         m_pEffect->SetPointLights(3, pl);
@@ -143,7 +145,7 @@ public:
         Pipeline p;
         
         p.Scale(0.1, 0.1, 0.1);
-        p.Rotate(0.0f, Scale * 30, 0.0f);
+        p.Rotate(90.0f, Scale * 30, 0.0f);
         p.WorldPos(0.0f, 15.0f, 3.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(m_persProjInfo);
@@ -153,8 +155,7 @@ public:
         {
             m_pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
         }
-        else
-        {
+        else {
             m_pTrivialNormalMap->Bind(NORMAL_TEXTURE_UNIT);
         }
 
@@ -196,6 +197,14 @@ public:
 
         case 'x':
             directionalLight.DiffuseIntensity -= 0.05f;
+            break;
+        case 'p':
+            if (m_bumpMapEnabled) { 
+                m_bumpMapEnabled = false; 
+            }
+            else { 
+                m_bumpMapEnabled = true; 
+            }
             break;
         }
     }
