@@ -96,25 +96,27 @@ public:
 
         wall = new Mesh();
 
-        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_sphere.fbx")) {
+        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\final_v01.obj")) {
             return false;
         }
 
-        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_basecolor.png");
-
+        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\all.png");
+        
         if (!m_pTexture->Load()) {
             return false;
         }
 
         m_pTexture->Bind(COLOR_TEXTURE_UNIT);
+       
+        
 
-        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_normal.png");
+        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_height.jpg");
 
         if (!m_pNormalMap->Load()) {
             return false;
         }
 
-        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source.Stylizedground_height.jpg");
+        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_height.jpg");
 
         if (!m_pTrivialNormalMap->Load()) {
             return false;
@@ -156,7 +158,7 @@ public:
         sl[0].AmbientIntensity = 0.1f;
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 0.0f, 3.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 0.0f, 10.0f);
         sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, -1.0f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
@@ -198,13 +200,15 @@ public:
         m_shadowMapFBO.BindForReading(GL_TEXTURE0);
 
         Pipeline p;
-        
+        p.Scale(0.1f, 0.1f, 0.1f);
         p.Rotate(0.0f, 0.0f, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(m_persProjInfo);
 
+        
         m_pTexture->Bind(COLOR_TEXTURE_UNIT);
+        
 
         if (m_bumpMapEnabled)
         {
