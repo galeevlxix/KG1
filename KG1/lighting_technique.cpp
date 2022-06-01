@@ -197,7 +197,6 @@ void main()                                                                     
 }";
 
 
-
 LightingTechnique::LightingTechnique()
 {
 }

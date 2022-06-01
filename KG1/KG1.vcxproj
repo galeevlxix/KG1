@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BillboardList.cpp" />
+    <ClCompile Include="BillboardTechnique.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glut_backend.cpp" />
     <ClCompile Include="lighting_technique.cpp" />
@@ -159,6 +161,8 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BillboardList.h" />
+    <ClInclude Include="BillboardTechnique.h" />
     <ClInclude Include="callbacks.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="engine_common.h" />

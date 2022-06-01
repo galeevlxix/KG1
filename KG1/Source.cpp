@@ -17,6 +17,7 @@
 #include "ShadowMapFBO.h"
 #include "ShadowMapTechnique.h"
 #include "Mesh.h"
+#include "BillboardList.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
