@@ -165,6 +165,7 @@
     <ClInclude Include="callbacks.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CubemapTexture.h" />
+    <ClInclude Include="engine_common.h" />
     <ClInclude Include="glut_backend.h" />
     <ClInclude Include="lighting_technique.h" />
     <ClInclude Include="math3d.h" />

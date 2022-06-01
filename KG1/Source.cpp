@@ -16,6 +16,7 @@
 #include "ShadowMapFBO.h"
 #include "ShadowMapTechnique.h"
 #include "SkyBox.h"
+#include "engine_common.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
@@ -31,6 +32,7 @@ public:
         m_pEffect = NULL;
         m_pShadowMapEffect = NULL;
         Scale = 0.0f;
+        obj = NULL;
 
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = -0.5f;
@@ -95,8 +97,19 @@ public:
             return false;
         }
 
-        obj1.CreateBuffer();
-        obj2.CreateBuffer();
+        obj = new Mesh();
+
+        if (!obj->LoadMesh("C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\final_v01.obj")) {
+            return false;
+        }
+
+        texture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\head.png");
+
+        if (!texture->Load()) {
+            return false;
+        }
+
+        texture->Bind(COLOR_TEXTURE_UNIT);
 
         return true;
     }
@@ -142,8 +155,8 @@ public:
         sl[1].AmbientIntensity = 0.1f;
         sl[1].DiffuseIntensity = 6.0f;
         sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[1].Position = pGameCamera->GetPos() * Vector3f(1.0f, -1.0f, 1.0f);
-        sl[1].Direction = pGameCamera->GetTarget() * Vector3f(0.5f, -2.0f, 0.5f);
+        sl[1].Position = pGameCamera->GetPos() /** Vector3f(1.0f, -1.0f, 1.0f)*/;
+        sl[1].Direction = pGameCamera->GetTarget() /** Vector3f(0.5f, -2.0f, 0.5f)*/;
         sl[1].Attenuation.Linear = 0.1f;
         sl[1].Cutoff = 5.0f;
 
@@ -174,6 +187,22 @@ public:
         m_pEffect->Enable();
         m_shadowMapFBO.BindForReading(GL_TEXTURE0);
 
+        Pipeline p;
+        p.Scale(0.1f, 0.1f, 0.1f);
+        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.WorldPos(0.0f, 10.0f, 0.0f);
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.PerspectiveProj(m_persProjInfo);
+
+
+        texture->Bind(COLOR_TEXTURE_UNIT);
+
+        m_pEffect->SetWVP(p.GetWVPTrans());
+        m_pEffect->SetWorldMatrix(p.getTransformation());
+        p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
+        m_pEffect->SetEyeWorldPos(pGameCamera->GetPos());
+
+        obj->Render();
 
         m_pSkyBox->Render();
         
@@ -233,6 +262,9 @@ private:
     PointLight pl[3];
     SpotLight sl[2];
     SkyBox* m_pSkyBox;
+
+    Mesh* obj;
+    Texture* texture;
 
     ShadowMapFBO m_shadowMapFBO;
     ShadowMapTechnique* m_pShadowMapEffect;
