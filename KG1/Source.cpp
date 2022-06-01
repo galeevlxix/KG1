@@ -96,11 +96,11 @@ public:
 
         wall = new Mesh();
 
-        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\final_v01.obj")) {
+        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_sphere.fbx")) {
             return false;
         }
 
-        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\sketch\\sourceimages\\all.png");
+        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_basecolor.png");
         
         if (!m_pTexture->Load()) {
             return false;
@@ -110,7 +110,7 @@ public:
        
         
 
-        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_height.jpg");
+        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_normal.png");
 
         if (!m_pNormalMap->Load()) {
             return false;
@@ -134,7 +134,7 @@ public:
     {
         pGameCamera->OnRender();
         glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
-        
+
 
         Scale += 0.001f;
         /////////////////////////////////////////////// LIGHT
@@ -142,17 +142,14 @@ public:
         pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
         pl[2].Position = Vector3f(sinf(Scale) * 10, 2.0f, cosf(Scale) * 10);
         pl[2].Attenuation.Linear = 0.1f;
-
         pl[1].DiffuseIntensity = 2.5f;
         pl[1].Color = Vector3f(0.0f, 1.0f, 0.0f);
         pl[1].Position = Vector3f(sinf(Scale + 2.1f) * 10, 2.0f, cosf(Scale + 2.1f) * 10);
         pl[1].Attenuation.Linear = 0.1f;
-
         pl[0].DiffuseIntensity = 2.5f;
         pl[0].Color = Vector3f(0.0f, 0.0f, 1.0f);
         pl[0].Position = Vector3f(sinf(Scale + 4.2f) * 10, 2.0f, cosf(Scale + 4.2f) * 10);
         pl[0].Attenuation.Linear = 0.1f;
-
         m_pLightingTechnique->SetPointLights(3, pl);*/
 
         sl[0].AmbientIntensity = 0.1f;
@@ -183,7 +180,7 @@ public:
 
         m_pShadowMapEffect->Enable();
 
-        Pipeline p1;        
+        Pipeline p1;
         p1.Scale(0.1f, 0.1f, 0.1f);
         p1.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
         p1.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
@@ -197,18 +194,18 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_pLightingTechnique->Enable();
-        m_shadowMapFBO.BindForReading(GL_TEXTURE0);
+        m_shadowMapFBO.BindForReading(GL_TEXTURE1);
 
         Pipeline p;
         p.Scale(0.1f, 0.1f, 0.1f);
-        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.Rotate(0.0f, .0f, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.PerspectiveProj(m_persProjInfo);
 
-        
+
         m_pTexture->Bind(COLOR_TEXTURE_UNIT);
-        
+
 
         if (m_bumpMapEnabled)
         {
@@ -225,12 +222,13 @@ public:
         m_pLightingTechnique->SetEyeWorldPos(pGameCamera->GetPos());
 
         wall->Render();
-        
+
         ///////////////////////////
-        
+
         glutSwapBuffers();
     }
 
+   
 
     virtual void IdleCB()
     {
