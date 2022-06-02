@@ -153,7 +153,10 @@
     <ClCompile Include="math3d.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="pipeline.cpp" />
+    <ClCompile Include="PSUpdateTechnique.cpp" />
+    <ClCompile Include="RandomTexture.cpp" />
     <ClCompile Include="ShadowMapFBO.cpp" />
     <ClCompile Include="ShadowMapTechnique.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -171,7 +174,11 @@
     <ClInclude Include="math3d.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pipeline.h" />
+    <ClInclude Include="PSUpdateTechnique.h" />
+    <ClInclude Include="RandomTexture.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ShadowMapFBO.h" />
     <ClInclude Include="ShadowMapTechnique.h" />
     <ClInclude Include="Technique.h" />
@@ -180,6 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="KG1.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

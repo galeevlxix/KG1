@@ -1,9 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <WinSock2.h>
 #include <math.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <windows.h>
+#include <cstring>
+
+#ifdef __GNUC__
+#  if __GNUC_PREREQ(4,7)
+#include <unistd.h>
+#  endif
+#endif
 
 #include "engine_common.h"
 #include "pipeline.h"
@@ -13,16 +23,25 @@
 #include "glut_backend.h"
 #include "math3d.h"
 #include "Utils.h"
-#include "Object.h"
-#include "ShadowMapFBO.h"
-#include "ShadowMapTechnique.h"
 #include "Mesh.h"
-#include "BillboardList.h"
+#include "ParticleSystem.h"
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 1024
 
 using namespace glm;
+
+static long long GetCurrentTimeMillis()
+{
+    static const __int64 magic = 116444736000000000; // 1970/1/1
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+    FILETIME   ft;
+    SystemTimeToFileTime(&st, &ft); // in 100-nanosecs...
+    __int64 t;
+    memcpy(&t, &ft, sizeof t);
+    return (t - magic) / 10000; // scale to millis.
+}
 
 class Main : public ICallbacks
 {
@@ -37,6 +56,7 @@ public:
         m_pTrivialNormalMap = NULL;
 
         Scale = 0.0f;
+        stepfloat = 0.001f;
 
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
         directionalLight.AmbientIntensity = 0.5f;
@@ -48,6 +68,8 @@ public:
         m_persProjInfo.Width = WINDOW_WIDTH;
         m_persProjInfo.zNear = 1.0f;
         m_persProjInfo.zFar = 100.0f;
+
+        m_currentTimeMillis = GetCurrentTimeMillis();
     }
 
     ~Main()
@@ -88,10 +110,6 @@ public:
             return false;
         }
 
-        if (!m_billboardList.Init("C:\\Users\\Lenovo\\Desktop\\james-p-rat-is-short.png")) {
-            return false;
-        }
-
         m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_basecolor.png");
         
         if (!m_pTexture->Load()) {
@@ -107,6 +125,10 @@ public:
             return false;
         }
 
+        Vector3f ParticleSystemPos = Vector3f(0.0f, 20.0f, 1.0f);
+
+        return m_particleSystem.InitParticleSystem(ParticleSystemPos);
+
         return true;
     }
 
@@ -117,11 +139,16 @@ public:
 
     virtual void RenderSceneCB()
     {
+        long long TimeNowMillis = GetCurrentTimeMillis();
+        assert(TimeNowMillis >= m_currentTimeMillis);
+        unsigned int DeltaTimeMillis = (unsigned int)(TimeNowMillis - m_currentTimeMillis);
+        m_currentTimeMillis = TimeNowMillis;
+
         pGameCamera->OnRender();
         glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
 
 
-        Scale += 0.001f;
+        Scale += stepfloat;
         /////////////////////////////////////////////// LIGHT
         /*pl[2].DiffuseIntensity = 2.5f;
         pl[2].Color = Vector3f(1.0f, 0.0f, 0.0f);
@@ -165,8 +192,8 @@ public:
 
         Pipeline p;
         p.Scale(1.0f, 1.0f, 1.0f);
-        p.Rotate(0.0f, 0.0f, 0.0f);
-        p.WorldPos(0.0f, 5.0f, 0.0f);
+        p.Rotate(Scale * 40, 0.0f, Scale * 40);
+        p.WorldPos(0.0f, 25.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.SetPerspectiveProj(m_persProjInfo);
 
@@ -177,7 +204,7 @@ public:
         m_pLightingTechnique->SetWVP(p.GetWVPTrans());
         m_pLightingTechnique->SetWorldMatrix(p.GetWorldTrans());
 
-        m_billboardList.Render(p.GetVPTrans(), pGameCamera->GetPos());
+        m_particleSystem.Render(DeltaTimeMillis, p.GetVPTrans(), pGameCamera->GetPos());
 
         glutSwapBuffers();
     }
@@ -215,6 +242,12 @@ public:
         case 'x':
             directionalLight.DiffuseIntensity -= 0.05f;
             break;
+        case 'o':
+            stepfloat *= 2.0f;
+            break;
+        case 'p':
+            stepfloat /= 2.0f;
+            break;
         }
     }
 
@@ -225,6 +258,8 @@ public:
     }
 
 private:
+    long long m_currentTimeMillis;
+
     LightingTechnique* m_pLightingTechnique;
     Camera* pGameCamera;
     float Scale;
@@ -238,14 +273,17 @@ private:
 
     PointLight pl[3];
     SpotLight sl[2];
+    float stepfloat;
 
     PersProjInfo m_persProjInfo;
-    BillboardList m_billboardList;
+
+    ParticleSystem m_particleSystem;
 };
 
 
 int main(int argc, char** argv)
 {
+    srand(time(NULL));
     GLUTBackendInit(argc, argv);
 
     if (!GLUTBackendCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, 32, false, "KG1")) {

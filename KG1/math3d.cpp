@@ -1,4 +1,5 @@
 #include "math3d.h"
+#include <stdlib.h>
 
 Vector3f Vector3f::Cross(const Vector3f& v) const
 {
@@ -159,4 +160,10 @@ Quaternion operator*(const Quaternion& q, const Vector3f& v)
     Quaternion ret(x, y, z, w);
 
     return ret;
+}
+
+float RandomFloat()
+{
+    float Max = _FMAX;
+    return ((float)rand()/ Max);
 }

@@ -1,4 +1,5 @@
 #include "BillboardTechnique.h"
+#include "Utils.h"
 
 static const char* pVS = "                                                          \n\
 #version 330                                                                        \n\
@@ -21,6 +22,7 @@ layout(max_vertices = 4) out;                                                   
                                                                                     \n\
 uniform mat4 gVP;                                                                   \n\
 uniform vec3 gCameraPos;                                                            \n\
+uniform float gBillboardSize;                                                       \n\
                                                                                     \n\
 out vec2 TexCoord;                                                                  \n\
                                                                                     \n\
@@ -29,25 +31,25 @@ void main()                                                                     
     vec3 Pos = gl_in[0].gl_Position.xyz;                                            \n\
     vec3 toCamera = normalize(gCameraPos - Pos);                                    \n\
     vec3 up = vec3(0.0, 1.0, 0.0);                                                  \n\
-    vec3 right = cross(toCamera, up);                                               \n\
+    vec3 right = cross(toCamera, up) * gBillboardSize;                              \n\
                                                                                     \n\
-    Pos -= (right * 0.5);                                                           \n\
+    Pos -= right;                                                                   \n\
     gl_Position = gVP * vec4(Pos, 1.0);                                             \n\
     TexCoord = vec2(0.0, 0.0);                                                      \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    Pos.y += 1.0;                                                                   \n\
+    Pos.y += gBillboardSize;                                                        \n\
     gl_Position = gVP * vec4(Pos, 1.0);                                             \n\
     TexCoord = vec2(0.0, 1.0);                                                      \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    Pos.y -= 1.0;                                                                   \n\
+    Pos.y -= gBillboardSize;                                                        \n\
     Pos += right;                                                                   \n\
     gl_Position = gVP * vec4(Pos, 1.0);                                             \n\
     TexCoord = vec2(1.0, 0.0);                                                      \n\
     EmitVertex();                                                                   \n\
                                                                                     \n\
-    Pos.y += 1.0;                                                                   \n\
+    Pos.y += gBillboardSize;                                                        \n\
     gl_Position = gVP * vec4(Pos, 1.0);                                             \n\
     TexCoord = vec2(1.0, 1.0);                                                      \n\
     EmitVertex();                                                                   \n\
@@ -68,7 +70,7 @@ void main()                                                                     
 {                                                                                   \n\
     FragColor = texture2D(gColorMap, TexCoord);                                     \n\
                                                                                     \n\
-    if (FragColor.r == 0 && FragColor.g == 0 && FragColor.b == 0) {                 \n\
+    if (FragColor.r >= 0.9 && FragColor.g >= 0.9 && FragColor.b >= 0.9) {           \n\
         discard;                                                                    \n\
     }                                                                               \n\
 }";
@@ -103,14 +105,16 @@ bool BillboardTechnique::Init()
     m_VPLocation = GetUniformLocation("gVP");
     m_cameraPosLocation = GetUniformLocation("gCameraPos");
     m_colorMapLocation = GetUniformLocation("gColorMap");
+    m_billboardSizeLocation = GetUniformLocation("gBillboardSize");
 
     if (m_VPLocation == INVALID_UNIFORM_LOCATION ||
         m_cameraPosLocation == INVALID_UNIFORM_LOCATION ||
+        m_billboardSizeLocation == INVALID_UNIFORM_LOCATION ||
         m_colorMapLocation == INVALID_UNIFORM_LOCATION) {
         return false;
     }
 
-    return true;
+    return GLCheckError();
 }
 
 
@@ -129,4 +133,10 @@ void BillboardTechnique::SetCameraPosition(const Vector3f& Pos)
 void BillboardTechnique::SetColorTextureUnit(unsigned int TextureUnit)
 {
     glUniform1i(m_colorMapLocation, TextureUnit);
+}
+
+
+void BillboardTechnique::SetBillboardSize(float BillboardSize)
+{
+    glUniform1f(m_billboardSizeLocation, BillboardSize);
 }
