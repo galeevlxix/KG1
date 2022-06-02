@@ -52,7 +52,7 @@ private:
     float m_AngleH;
     float m_AngleV;
 
-    vec2 m_lastMousePos;
+    Vector2i m_mousePos;
 };
 
 #endif	/* CAMERA_H */

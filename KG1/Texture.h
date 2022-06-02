@@ -21,8 +21,8 @@ private:
     std::string m_fileName;
     GLenum m_textureTarget;
     GLuint m_textureObj;
-    Image* m_pImage;
-    Blob m_blob;
+    Magick::Image* m_pImage;
+    Magick::Blob m_blob;
 };
 
 

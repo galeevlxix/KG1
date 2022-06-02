@@ -64,8 +64,8 @@ class LightingTechnique : public Technique
 {
 public:
 
-    static const unsigned int MAX_POINT_LIGHTS = 3;
-    static const unsigned int MAX_SPOT_LIGHTS = 3;
+    static const unsigned int MAX_POINT_LIGHTS = 2;
+    static const unsigned int MAX_SPOT_LIGHTS = 2;
 
     LightingTechnique();
 
@@ -131,6 +131,7 @@ private:
         } Atten;
     } m_spotLightsLocation[MAX_SPOT_LIGHTS];
 };
+
 
 
 #endif // LIGHTINGTECHNIQUE_H

@@ -6,51 +6,57 @@
 #include "glm/mat4x4.hpp"
 #include <glm/fwd.hpp>
 
-class Pipeline {
+class Pipeline
+{
 public:
-    Pipeline() :
-        mScale(Vector3f(1.0f, 1.0f, 1.0f)),
-        mWorldPos(Vector3f(0.0f, 0.0f, 0.0f)),
-        mRotateInfo(Vector3f(0.0f, 0.0f, 0.0f)){}
+    Pipeline()
+    {
+        m_scale = Vector3f(1.0f, 1.0f, 1.0f);
+        m_worldPos = Vector3f(0.0f, 0.0f, 0.0f);
+        m_rotateInfo = Vector3f(0.0f, 0.0f, 0.0f);
+    }
 
     void Scale(float ScaleX, float ScaleY, float ScaleZ)
     {
-        mScale.x = ScaleX;
-        mScale.y = ScaleY;
-        mScale.z = ScaleZ;
+        m_scale.x = ScaleX;
+        m_scale.y = ScaleY;
+        m_scale.z = ScaleZ;
     }
+
     void WorldPos(float x, float y, float z)
     {
-        mWorldPos.x = x;
-        mWorldPos.y = y;
-        mWorldPos.z = z;
+        m_worldPos.x = x;
+        m_worldPos.y = y;
+        m_worldPos.z = z;
     }
+
     void Rotate(float RotateX, float RotateY, float RotateZ)
     {
-        mRotateInfo.x = RotateX;
-        mRotateInfo.y = RotateY;
-        mRotateInfo.z = RotateZ;
+        m_rotateInfo.x = RotateX;
+        m_rotateInfo.y = RotateY;
+        m_rotateInfo.z = RotateZ;
     }
-    void PerspectiveProj(const PersProjInfo& p) {
+
+    void SetPerspectiveProj(const PersProjInfo& p)
+    {
         m_persProjInfo = p;
     }
-    const Matrix4f& getTransformation();
 
-    void SetCamera(const Vector3f Pos, const Vector3f Target, const Vector3f Up)
+    void SetCamera(const Vector3f& Pos, const Vector3f& Target, const Vector3f& Up)
     {
         m_camera.Pos = Pos;
         m_camera.Target = Target;
         m_camera.Up = Up;
     }
 
+    const Matrix4f& GetVPTrans();
     const Matrix4f& GetWVPTrans();
+    const Matrix4f& GetWorldTrans();
 
 private:
-    Vector3f mScale;
-    Vector3f mWorldPos;
-    Vector3f mRotateInfo;
-    Matrix4f mTransformation;
-    Matrix4f m_WVPtransformation;
+    Vector3f m_scale;
+    Vector3f m_worldPos;
+    Vector3f m_rotateInfo;
 
     PersProjInfo m_persProjInfo;
 
@@ -59,5 +65,10 @@ private:
         Vector3f Target;
         Vector3f Up;
     } m_camera;
+
+    Matrix4f m_WVPtransformation;
+    Matrix4f m_VPTtransformation;
+    Matrix4f m_WorldTransformation;
 };
+
 #endif

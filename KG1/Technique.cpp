@@ -3,8 +3,10 @@
 #include <assert.h>
 
 #include "technique.h"
+#include "Utils.h"
 
 static const char* pVSName = "VS";
+static const char* pGSName = "GS";
 static const char* pFSName = "FS";
 
 const char* ShaderType2ShaderName(GLuint Type)
@@ -12,6 +14,8 @@ const char* ShaderType2ShaderName(GLuint Type)
     switch (Type) {
     case GL_VERTEX_SHADER:
         return pVSName;
+    case GL_GEOMETRY_SHADER:
+        return pGSName;
     case GL_FRAGMENT_SHADER:
         return pFSName;
     default:
@@ -145,4 +149,11 @@ GLint Technique::GetUniformLocation(const char* pUniformName)
     }
 
     return Location;
+}
+
+GLint Technique::GetProgramParam(GLint param)
+{
+    GLint ret;
+    glGetProgramiv(m_shaderProg, param, &ret);
+    return ret;
 }

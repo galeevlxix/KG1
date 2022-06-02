@@ -67,6 +67,7 @@ bool GLUTBackendCreateWindow(unsigned int Width, unsigned int Height, unsigned i
         glutCreateWindow(pTitle);
     }
 
+    glewExperimental = GL_TRUE;
     // Must be done after glut is initialized!
     GLenum res = glewInit();
     if (res != GLEW_OK) {
@@ -87,11 +88,10 @@ void GLUTBackendRun(ICallbacks* pCallbacks)
     }
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glEnable(GL_DEPTH_TEST);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
-
+    glEnable(GL_DEPTH_TEST);
 
     s_pCallbacks = pCallbacks;
     InitCallbacks();

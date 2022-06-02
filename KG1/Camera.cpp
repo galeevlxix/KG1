@@ -1,7 +1,8 @@
 #include "Camera.h"
 #include <GL/freeglut.h>
 
-const static float STEP_SCALE = 0.1f;
+const static float STEP_SCALE = 0.4f;
+const static int MARGIN = 10;
 
 Camera::Camera(int WindowWidth, int WindowHeight)
 {
@@ -62,10 +63,10 @@ void Camera::Init()
 
     m_AngleV = -ToDegree(asin(m_target.y));
 
-    m_lastMousePos.x = m_windowWidth / 2;
-    m_lastMousePos.y = m_windowHeight / 2;
+    m_mousePos.x = m_windowWidth / 2;
+    m_mousePos.y = m_windowHeight / 2;
 
-    glutWarpPointer(m_lastMousePos.x, m_lastMousePos.y);
+    glutWarpPointer(m_mousePos.x, m_mousePos.y);
 }
 
 
@@ -77,14 +78,14 @@ bool Camera::OnKeyboard(int Key)
 
     case GLUT_KEY_UP:
     {
-        m_pos = m_pos + (m_target * STEP_SCALE);
+        m_pos += (m_target * STEP_SCALE);
         Ret = true;
     }
     break;
 
     case GLUT_KEY_DOWN:
     {
-        m_pos = m_pos - (m_target * STEP_SCALE);
+        m_pos -= (m_target * STEP_SCALE);
         Ret = true;
     }
     break;
@@ -93,8 +94,8 @@ bool Camera::OnKeyboard(int Key)
     {
         Vector3f Left = m_target.Cross(m_up);
         Left.Normalize();
-        Left = Left * STEP_SCALE;
-        m_pos = m_pos + Left;
+        Left *= STEP_SCALE;
+        m_pos += Left;
         Ret = true;
     }
     break;
@@ -103,13 +104,11 @@ bool Camera::OnKeyboard(int Key)
     {
         Vector3f Right = m_up.Cross(m_target);
         Right.Normalize();
-        Right = Right * STEP_SCALE;
-        m_pos = m_pos + Right;
+        Right *= STEP_SCALE;
+        m_pos += Right;
         Ret = true;
     }
     break;
-
-
     }
 
     return Ret;
@@ -118,19 +117,18 @@ bool Camera::OnKeyboard(int Key)
 
 void Camera::OnMouse(int x, int y)
 {
-    const int DeltaX = x - m_lastMousePos.x;
-    const int DeltaY = y - m_lastMousePos.y;
+    if ((x == m_mousePos.x) && (y == m_mousePos.y)) return;
 
-    m_lastMousePos.x = x;
-    m_lastMousePos.y = y;
+    const int DeltaX = x - m_mousePos.x;
+    const int DeltaY = y - m_mousePos.y;
 
-    if(DeltaX == 0 && DeltaY == 0) return;
-
-    m_AngleH += (float)DeltaX / 2.0f;
-    m_AngleV += (float)DeltaY / 2.0f;
+    m_AngleH += (float)DeltaX / 20.0f;
+    m_AngleV += (float)DeltaY / 20.0f;
 
     Update();
+    glutWarpPointer(m_mousePos.x, m_mousePos.y);
 }
+
 
 void Camera::OnRender()
 {

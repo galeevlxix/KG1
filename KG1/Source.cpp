@@ -36,7 +36,6 @@ public:
         m_pNormalMap = NULL;
         m_pTrivialNormalMap = NULL;
 
-        m_pShadowMapEffect = NULL;
         Scale = 0.0f;
 
         directionalLight.Color = Vector3f(1.0f, 1.0f, 1.0f);
@@ -49,8 +48,6 @@ public:
         m_persProjInfo.Width = WINDOW_WIDTH;
         m_persProjInfo.zNear = 1.0f;
         m_persProjInfo.zFar = 100.0f;
-
-        m_bumpMapEnabled = true;
     }
 
     ~Main()
@@ -69,10 +66,6 @@ public:
         Vector3f Target(0.0f, 0.0f, 1.0f);
         Vector3f Up(0.0, 1.0f, 0.0f);
 
-        if (!m_shadowMapFBO.Init(WINDOW_WIDTH, WINDOW_HEIGHT)) {
-            return false;
-        }
-
         pGameCamera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, Pos, Target, Up);
 
        
@@ -89,15 +82,13 @@ public:
         m_pLightingTechnique->SetColorTextureUnit(0);
         m_pLightingTechnique->SetNormalMapTextureUnit(2);
 
-        m_pShadowMapEffect = new ShadowMapTechnique();
-        if (!m_pShadowMapEffect->Init()) {
-            printf("Error initializing the shadow map technique\n");
-            return false;
-        }
-
         wall = new Mesh();
 
         if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_sphere.fbx")) {
+            return false;
+        }
+
+        if (!m_billboardList.Init("C:\\Users\\Lenovo\\Desktop\\james-p-rat-is-short.png")) {
             return false;
         }
 
@@ -107,19 +98,12 @@ public:
             return false;
         }
 
-        m_pTexture->Bind(COLOR_TEXTURE_UNIT);
-       
+        m_pTexture->Bind(COLOR_TEXTURE_UNIT);       
         
 
-        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_normal.png");
+        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Pinkish_N_0.png");
 
         if (!m_pNormalMap->Load()) {
-            return false;
-        }
-
-        m_pTrivialNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_height.jpg");
-
-        if (!m_pTrivialNormalMap->Load()) {
             return false;
         }
 
@@ -156,75 +140,44 @@ public:
         sl[0].AmbientIntensity = 0.1f;
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 0.0f, 10.0f);
-        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, -1.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 10.0f, -10.0f);
+        sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 1.0f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
 
         sl[1].AmbientIntensity = 0.1f;
-        sl[1].DiffuseIntensity = 6.0f;
+        sl[1].DiffuseIntensity = 0.0f;
         sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
         sl[1].Position = pGameCamera->GetPos() /** Vector3f(1.0f, -1.0f, 1.0f)*/;
         sl[1].Direction = pGameCamera->GetTarget() /** Vector3f(0.5f, -2.0f, 0.5f)*/;
         sl[1].Attenuation.Linear = 0.1f;
-        sl[1].Cutoff = 5.0f;
+        sl[1].Cutoff = 20.0f;
 
         m_pLightingTechnique->SetSpotLights(2, sl);
 
         m_pLightingTechnique->SetDirectionalLight(directionalLight);
         m_pLightingTechnique->SetMatSpecularIntensity(5.0f);
         m_pLightingTechnique->SetMatSpecularPower(5);
-        /////////////////////////////////////////////// ShadowMapPass
-
-        m_shadowMapFBO.BindForWriting();
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        m_pShadowMapEffect->Enable();
-
-        Pipeline p1;
-        p1.Scale(0.1f, 0.1f, 0.1f);
-        p1.Rotate(0.0f, Scale * 50, 20 * sinf(Scale * 2));
-        p1.WorldPos(sinf(Scale * 2), sinf(Scale * 2) * sinf(Scale * 2) + 12.0f, 0.0f);
-        p1.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        p1.PerspectiveProj(m_persProjInfo);
-
-        m_pShadowMapEffect->SetWVP(p1.GetWVPTrans());
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         /////////////////////////////////////////////// RenderPass
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_pLightingTechnique->Enable();
-        m_shadowMapFBO.BindForReading(GL_TEXTURE1);
 
         Pipeline p;
-        p.Scale(0.1f, 0.1f, 0.1f);
-        p.Rotate(0.0f, .0f, 0.0f);
-        p.WorldPos(0.0f, 10.0f, 0.0f);
+        p.Scale(1.0f, 1.0f, 1.0f);
+        p.Rotate(0.0f, 0.0f, 0.0f);
+        p.WorldPos(0.0f, 5.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.PerspectiveProj(m_persProjInfo);
-
+        p.SetPerspectiveProj(m_persProjInfo);
 
         m_pTexture->Bind(COLOR_TEXTURE_UNIT);
 
-
-        if (m_bumpMapEnabled)
-        {
-            m_pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
-        }
-        else
-        {
-            m_pTrivialNormalMap->Bind(NORMAL_TEXTURE_UNIT);
-        }
+        m_pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
 
         m_pLightingTechnique->SetWVP(p.GetWVPTrans());
-        m_pLightingTechnique->SetWorldMatrix(p.getTransformation());
-        p.SetCamera(sl[0].Position, sl[0].Direction, Vector3f(0.0f, 1.0f, 0.0f));
-        m_pLightingTechnique->SetEyeWorldPos(pGameCamera->GetPos());
+        m_pLightingTechnique->SetWorldMatrix(p.GetWorldTrans());
 
-        wall->Render();
-
-        ///////////////////////////
+        m_billboardList.Render(p.GetVPTrans(), pGameCamera->GetPos());
 
         glutSwapBuffers();
     }
@@ -286,11 +239,8 @@ private:
     PointLight pl[3];
     SpotLight sl[2];
 
-    ShadowMapFBO m_shadowMapFBO;
-    ShadowMapTechnique* m_pShadowMapEffect;
-
     PersProjInfo m_persProjInfo;
-    bool m_bumpMapEnabled;
+    BillboardList m_billboardList;
 };
 
 
