@@ -20,21 +20,19 @@ using namespace glm;
 struct Vertex
 {
     Vector3f m_pos;
-    vec2 m_tex;
+    Vector2f m_tex;
     Vector3f m_normal;
-    Vector3f m_tangent;
 
     Vertex() {}
 
-    Vertex(const Vector3f& pos, const vec2& tex, const Vector3f& normal, const Vector3f& Tangent)
+    Vertex(const Vector3f& pos, const Vector2f& tex, const Vector3f& normal)
     {
         m_pos = pos;
         m_tex = tex;
         m_normal = normal;
-        m_tangent = Tangent;
-
     }
 };
+
 
 class Mesh
 {
@@ -49,23 +47,37 @@ public:
 
 private:
     bool InitFromScene(const aiScene* pScene, const std::string& Filename);
-    void InitMesh(unsigned int Index, const aiMesh* paiMesh);
+    void InitMesh(const aiMesh* paiMesh,
+        std::vector<Vector3f>& Positions,
+        std::vector<Vector3f>& Normals,
+        std::vector<Vector2f>& TexCoords,
+        std::vector<unsigned int>& Indices);
+
     bool InitMaterials(const aiScene* pScene, const std::string& Filename);
     void Clear();
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
+#define INDEX_BUFFER 0    
+#define POS_VB       1
+#define NORMAL_VB    2
+#define TEXCOORD_VB  3       
+
+    GLuint m_VAO;
+    GLuint m_Buffers[4];
+
     struct MeshEntry {
-        MeshEntry();
+        MeshEntry()
+        {
+            NumIndices = 0;
+            BaseVertex = 0;
+            BaseIndex = 0;
+            MaterialIndex = INVALID_MATERIAL;
+        }
 
-        ~MeshEntry();
-
-        bool Init(const std::vector<Vertex>& Vertices,
-            const std::vector<unsigned int>& Indices);
-
-        GLuint VB;
-        GLuint IB;
         unsigned int NumIndices;
+        unsigned int BaseVertex;
+        unsigned int BaseIndex;
         unsigned int MaterialIndex;
     };
 

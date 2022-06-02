@@ -2,18 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <WinSock2.h>
 #include <math.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <windows.h>
 #include <cstring>
 
-#ifdef __GNUC__
-#  if __GNUC_PREREQ(4,7)
-#include <unistd.h>
-#  endif
-#endif
 
 #include "engine_common.h"
 #include "pipeline.h"
@@ -31,18 +25,6 @@
 
 using namespace glm;
 
-static long long GetCurrentTimeMillis()
-{
-    static const __int64 magic = 116444736000000000; // 1970/1/1
-    SYSTEMTIME st;
-    GetSystemTime(&st);
-    FILETIME   ft;
-    SystemTimeToFileTime(&st, &ft); // in 100-nanosecs...
-    __int64 t;
-    memcpy(&t, &ft, sizeof t);
-    return (t - magic) / 10000; // scale to millis.
-}
-
 class Main : public ICallbacks
 {
 public:
@@ -50,7 +32,9 @@ public:
     {
         pGameCamera = NULL;
         m_pLightingTechnique = NULL;
-        wall = NULL;
+        obj1 = NULL;
+        obj2 = NULL;
+        obj3 = NULL;
         m_pTexture = NULL;
         m_pNormalMap = NULL;
         m_pTrivialNormalMap = NULL;
@@ -68,15 +52,16 @@ public:
         m_persProjInfo.Width = WINDOW_WIDTH;
         m_persProjInfo.zNear = 1.0f;
         m_persProjInfo.zFar = 100.0f;
-
-        m_currentTimeMillis = GetCurrentTimeMillis();
     }
 
     ~Main()
     {
         SAFE_DELETE(m_pLightingTechnique);
         SAFE_DELETE(pGameCamera);
-        SAFE_DELETE(wall);
+        SAFE_DELETE(obj1);
+        SAFE_DELETE(obj2);
+        SAFE_DELETE(obj3);
+
         SAFE_DELETE(m_pTexture);
         SAFE_DELETE(m_pNormalMap);
         SAFE_DELETE(m_pTrivialNormalMap);
@@ -104,30 +89,11 @@ public:
         m_pLightingTechnique->SetColorTextureUnit(0);
         m_pLightingTechnique->SetNormalMapTextureUnit(2);
 
-        wall = new Mesh();
+        obj1 = new Mesh();
 
-        if (!wall->LoadMesh("C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_sphere.fbx")) {
+        if (!obj1->LoadMesh("models/Elf01_posed/Elf01_posed.obj")) {
             return false;
         }
-
-        m_pTexture = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Stylizedground_basecolor.png");
-        
-        if (!m_pTexture->Load()) {
-            return false;
-        }
-
-        m_pTexture->Bind(COLOR_TEXTURE_UNIT);       
-        
-
-        m_pNormalMap = new Texture(GL_TEXTURE_2D, "C:\\Users\\Lenovo\\Desktop\\source\\Pinkish_N_0.png");
-
-        if (!m_pNormalMap->Load()) {
-            return false;
-        }
-
-        Vector3f ParticleSystemPos = Vector3f(0.0f, 20.0f, 1.0f);
-
-        return m_particleSystem.InitParticleSystem(ParticleSystemPos);
 
         return true;
     }
@@ -139,11 +105,6 @@ public:
 
     virtual void RenderSceneCB()
     {
-        long long TimeNowMillis = GetCurrentTimeMillis();
-        assert(TimeNowMillis >= m_currentTimeMillis);
-        unsigned int DeltaTimeMillis = (unsigned int)(TimeNowMillis - m_currentTimeMillis);
-        m_currentTimeMillis = TimeNowMillis;
-
         pGameCamera->OnRender();
         glClearColor(0.53f, 0.33f, 0.75f, 0.0f);
 
@@ -167,13 +128,13 @@ public:
         sl[0].AmbientIntensity = 0.1f;
         sl[0].DiffuseIntensity = 3.0f;
         sl[0].Color = Vector3f(1.0f, 1.0f, 1.0f);
-        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 10.0f, -10.0f);
+        sl[0].Position = Vector3f(sinf(Scale * 2) * 3, 15.0f, -10.0f);
         sl[0].Direction = Vector3f(-sinf(Scale * 2), 1.0f, 1.0f);
         sl[0].Attenuation.Linear = 0.01f;
         sl[0].Cutoff = 20.0f;
 
         sl[1].AmbientIntensity = 0.1f;
-        sl[1].DiffuseIntensity = 0.0f;
+        sl[1].DiffuseIntensity = 3.0f;
         sl[1].Color = Vector3f(1.0f, 1.0f, 1.0f);
         sl[1].Position = pGameCamera->GetPos() /** Vector3f(1.0f, -1.0f, 1.0f)*/;
         sl[1].Direction = pGameCamera->GetTarget() /** Vector3f(0.5f, -2.0f, 0.5f)*/;
@@ -191,24 +152,19 @@ public:
         m_pLightingTechnique->Enable();
 
         Pipeline p;
-        p.Scale(1.0f, 1.0f, 1.0f);
-        p.Rotate(Scale * 40, 0.0f, Scale * 40);
-        p.WorldPos(0.0f, 25.0f, 0.0f);
+        p.Scale(0.1f, 0.1f, 0.1f);
+        p.Rotate(0.0f, Scale * 30, 0.0f);
+        p.WorldPos(0.0f, 10.0f, 0.0f);
         p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
         p.SetPerspectiveProj(m_persProjInfo);
-
-        m_pTexture->Bind(COLOR_TEXTURE_UNIT);
-
-        m_pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
-
+      
         m_pLightingTechnique->SetWVP(p.GetWVPTrans());
         m_pLightingTechnique->SetWorldMatrix(p.GetWorldTrans());
 
-        m_particleSystem.Render(DeltaTimeMillis, p.GetVPTrans(), pGameCamera->GetPos());
+        obj1->Render();
 
         glutSwapBuffers();
     }
-
    
 
     virtual void IdleCB()
@@ -258,14 +214,14 @@ public:
     }
 
 private:
-    long long m_currentTimeMillis;
-
     LightingTechnique* m_pLightingTechnique;
     Camera* pGameCamera;
     float Scale;
     DirectionalLight directionalLight;
 
-    Mesh* wall;
+    Mesh* obj1;
+    Mesh* obj2;
+    Mesh* obj3;
 
     Texture* m_pTexture;
     Texture* m_pNormalMap;
@@ -276,14 +232,11 @@ private:
     float stepfloat;
 
     PersProjInfo m_persProjInfo;
-
-    ParticleSystem m_particleSystem;
 };
 
 
 int main(int argc, char** argv)
 {
-    srand(time(NULL));
     GLUTBackendInit(argc, argv);
 
     if (!GLUTBackendCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, 32, false, "KG1")) {
