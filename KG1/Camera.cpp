@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <GL/freeglut.h>
 
-const static float STEP_SCALE = 0.4f;
+const static float STEP_SCALE = 0.05f;
 const static int MARGIN = 10;
 
 Camera::Camera(int WindowWidth, int WindowHeight)
@@ -106,6 +106,20 @@ bool Camera::OnKeyboard(int Key)
         Right.Normalize();
         Right *= STEP_SCALE;
         m_pos += Right;
+        Ret = true;
+    }
+    break;
+
+    case GLUT_KEY_PAGE_UP: 
+    {
+        m_pos += (m_up * STEP_SCALE);
+        Ret = true;
+    }
+    break;
+
+    case GLUT_KEY_PAGE_DOWN: 
+    {
+        m_pos -= (m_up * STEP_SCALE);
         Ret = true;
     }
     break;

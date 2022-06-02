@@ -93,7 +93,7 @@ public:
 
         if (!obj1->LoadMesh("models/Elf01_posed/Elf01_posed.obj")) {
             return false;
-        }
+        }        
 
         return true;
     }
@@ -152,16 +152,18 @@ public:
         m_pLightingTechnique->Enable();
 
         Pipeline p;
+        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
+        p.SetPerspectiveProj(m_persProjInfo);
+
+
         p.Scale(0.1f, 0.1f, 0.1f);
         p.Rotate(0.0f, Scale * 30, 0.0f);
         p.WorldPos(0.0f, 10.0f, 0.0f);
-        p.SetCamera(pGameCamera->GetPos(), pGameCamera->GetTarget(), pGameCamera->GetUp());
-        p.SetPerspectiveProj(m_persProjInfo);
-      
         m_pLightingTechnique->SetWVP(p.GetWVPTrans());
         m_pLightingTechnique->SetWorldMatrix(p.GetWorldTrans());
-
         obj1->Render();
+
+       
 
         glutSwapBuffers();
     }
