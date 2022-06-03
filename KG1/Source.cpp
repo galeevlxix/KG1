@@ -142,7 +142,6 @@ public:
         sl[1].Cutoff = 20.0f;
 
         m_pLightingTechnique->SetSpotLights(2, sl);
-
         m_pLightingTechnique->SetDirectionalLight(directionalLight);
         m_pLightingTechnique->SetMatSpecularIntensity(5.0f);
         m_pLightingTechnique->SetMatSpecularPower(5);
