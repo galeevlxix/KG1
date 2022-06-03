@@ -2,7 +2,12 @@
 #define	MATH3D_H
 
 #include <stdio.h>
+#ifdef WIN32
+#define _USE_MATH_DEFINES 
+#include <cmath>
+#else
 #include <math.h>
+#endif
 
 #define M_PI 3.14159265358979323846
 #define ToRadian(x) ((x) * M_PI / 180.0f)
@@ -161,6 +166,20 @@ public:
     }
 
 
+    Matrix4f Transpose() const
+    {
+        Matrix4f n;
+
+        for (unsigned int i = 0; i < 4; i++) {
+            for (unsigned int j = 0; j < 4; j++) {
+                n.m[i][j] = m[j][i];
+            }
+        }
+
+        return n;
+    }
+
+
     inline void InitIdentity()
     {
         m[0][0] = 1.0f; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
@@ -197,7 +216,7 @@ public:
         return r;
     }
 
-    void Print()
+    void Print() const
     {
         for (int i = 0; i < 4; i++) {
             printf("%f %f %f %f\n", m[i][0], m[i][1], m[i][2], m[i][3]);

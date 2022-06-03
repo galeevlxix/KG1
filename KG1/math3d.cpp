@@ -162,6 +162,7 @@ Quaternion operator*(const Quaternion& q, const Vector3f& v)
     return ret;
 }
 
+
 float RandomFloat()
 {
     float Max = _FMAX;
