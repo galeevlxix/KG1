@@ -47,7 +47,6 @@ Technique::~Technique()
     }
 }
 
-
 bool Technique::Init()
 {
     m_shaderProg = glCreateProgram();
