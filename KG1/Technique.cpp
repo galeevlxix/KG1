@@ -29,7 +29,6 @@ Technique::Technique()
     m_shaderProg = 0;
 }
 
-
 Technique::~Technique()
 {
     // Delete the intermediate shader objects that have been added to the program
